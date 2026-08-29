@@ -49,8 +49,7 @@ tecnicamente válida, mas fora do ground truth e sobre código de exemplo, não 
 real da ferramenta (auditar o próprio app) esse tipo de achado é o alvo principal; aqui é ruído
 só porque o alvo do teste é o repositório da SDK.
 
-Hipótese para a iteração 1: separar "isso está declarado?" (ler manifestos) de "essa declaração
-cobre este uso / este bundle?" (ler código) deve subir o recall em #3 e #4.
+"Hipótese para a iteração 1: separar 'isso está declarado?' de 'essa declaração cobre este uso/bundle?' deve subir o recall em #2 (firebase) e #3 (shoutkit). #4 (Wootric) exige correção adicional, fora do escopo da especialização: reforçar o contrato estruturado (campo file obrigatório, validado) — sem isso o mesmo erro deve se repetir mesmo com agente dedicado."
 
 ### 1 — Privacidade + Permissões
 `[preencher]`
