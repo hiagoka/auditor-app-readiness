@@ -1,0 +1,128 @@
+[
+  {
+    "id": 1,
+    "repo": "auth0/react-native-auth0",
+    "cloneUrl": "https://github.com/auth0/react-native-auth0.git",
+    "commitBefore": "0305565",
+    "resolvedCommitBefore": "03055659508d96b0e47afb8e5bdfbdb2de36a720",
+    "commitAfter": "be14b33",
+    "difficulty": "baixa",
+    "isNegativeCase": false,
+    "issueUrl": "",
+    "prUrl": "https://github.com/auth0/react-native-auth0/pull/1641",
+    "validated": "2026-08-29: bug confirmado. ios/PrivacyInfo.xcprivacy ausente no commitBefore; be14b33 (#1641, 'ship a privacy manifest with the A0Auth0 pod') cria o arquivo.",
+    "groundTruth": {
+      "problem": "ios/PrivacyInfo.xcprivacy inexistente; a lib A0Auth0 não declara privacy manifest",
+      "category": "privacy-manifest-missing",
+      "files": ["ios/PrivacyInfo.xcprivacy"],
+      "expected": ["PrivacyInfo.xcprivacy", "NSPrivacyCollectedDataTypeUserID"]
+    }
+  },
+  {
+    "id": 2,
+    "repo": "react-native-image-picker/react-native-image-picker",
+    "cloneUrl": "https://github.com/react-native-image-picker/react-native-image-picker.git",
+    "commitBefore": "1257423",
+    "resolvedCommitBefore": "125742374a4ecd288c74f800fedb5b3be1607f7f",
+    "commitAfter": "9c22ee8",
+    "difficulty": "media",
+    "isNegativeCase": false,
+    "issueUrl": "",
+    "prUrl": "",
+    "validated": "2026-08-29: bug confirmado. Arquivo é ImagePickerManager.mm (não .m); phAsset.creationDate nas linhas 208 e 311; a lib (ios/) não traz PrivacyInfo.xcprivacy.",
+    "groundTruth": {
+      "problem": "Uso de phAsset.creationDate em ios/ImagePickerManager.mm sem declarar NSPrivacyAccessedAPICategoryFileTimestamp (motivo 3B52.1)",
+      "category": "required-reason-api-undeclared",
+      "files": ["ios/ImagePickerManager.mm"],
+      "lines": [208, 311],
+      "reference": "3B52.1",
+      "expected": ["NSPrivacyAccessedAPICategoryFileTimestamp"]
+    }
+  },
+  {
+    "id": 3,
+    "repo": "Wootric/WootricSDK-iOS",
+    "cloneUrl": "https://github.com/Wootric/WootricSDK-iOS.git",
+    "commitBefore": "501a7b6",
+    "resolvedCommitBefore": "501a7b6daaef73d70fc23d77c1aefa3d4b25f8b3",
+    "commitAfter": "170b85a",
+    "difficulty": "media",
+    "isNegativeCase": false,
+    "issueUrl": "",
+    "prUrl": "",
+    "validated": "2026-08-29: bug confirmado. Caminho real é WootricSDK/WootricSDK/ (dir aninhado). NSUserDefaults standardUserDefaults em WTRApiClient.m (l.529, 632) e WTRDefaults.m (l.33, 47, 65). Nenhum .xcprivacy no repo.",
+    "groundTruth": {
+      "problem": "WTRApiClient.m e WTRDefaults.m usam [NSUserDefaults standardUserDefaults] sem declarar NSPrivacyAccessedAPICategoryUserDefaults (CA92.1)",
+      "category": "required-reason-api-undeclared",
+      "files": [
+        "WootricSDK/WootricSDK/WTRApiClient.m",
+        "WootricSDK/WootricSDK/WTRDefaults.m"
+      ],
+      "lines": [529, 632, 33, 47, 65],
+      "reference": "CA92.1",
+      "expected": ["NSPrivacyAccessedAPICategoryUserDefaults"]
+    }
+  },
+  {
+    "id": 4,
+    "repo": "firebase/firebase-ios-sdk",
+    "cloneUrl": "https://github.com/firebase/firebase-ios-sdk.git",
+    "commitBefore": "e93e745",
+    "resolvedCommitBefore": "e93e7454b4b7cabbe2bdacd2c5f6cd90dede51ae",
+    "commitAfter": "16f64bf",
+    "difficulty": "alta",
+    "isNegativeCase": false,
+    "issueUrl": "",
+    "prUrl": "",
+    "validated": "2026-08-29: bug confirmado, match exato. SettingsCacheClient.swift:51 => 'private let cache: UserDefaults = .standard' em vez do wrapper GULUserDefaults. Caso principal: exige ler o código, não só checar presença de arquivo.",
+    "groundTruth": {
+      "problem": "SettingsCacheClient.swift:51 usa UserDefaults.standard puro em vez do wrapper GULUserDefaults, sem required-reason declarado",
+      "category": "required-reason-api-undeclared",
+      "files": ["FirebaseSessions/Sources/Settings/SettingsCacheClient.swift"],
+      "lines": [51],
+      "expected": ["GULUserDefaults", "NSPrivacyAccessedAPICategoryUserDefaults"]
+    }
+  },
+  {
+    "id": 5,
+    "repo": "cascadiacollections/shoutkit",
+    "cloneUrl": "https://github.com/cascadiacollections/shoutkit.git",
+    "commitBefore": "2643fe1",
+    "resolvedCommitBefore": "2643fe1a89a4763282d2ae34b37668aae8c430bb",
+    "commitAfter": null,
+    "difficulty": "baixa",
+    "isNegativeCase": false,
+    "issueUrl": "",
+    "prUrl": "",
+    "validated": "2026-08-29: bug confirmado. Caminhos reais têm prefixo ShoutKitApp/. Targets ShoutKitWatchApp e ShoutKitTVApp existem no .pbxproj mas não têm PrivacyInfo.xcprivacy (só ShoutKitApp/ShoutKitApp/ tem). ShoutKitWatchApp/WatchAppDependencies.swift usa UserDefaults. ATENÇÃO: história do repo foi reescrita — o commitAfter cb3c677 do plano não existe mais.",
+    "groundTruth": {
+      "problem": "Faltam ShoutKitApp/ShoutKitWatchApp/PrivacyInfo.xcprivacy e ShoutKitApp/ShoutKitTVApp/PrivacyInfo.xcprivacy; ambos os targets acessam UserDefaults (direto ou via Packages)",
+      "category": "privacy-manifest-missing",
+      "files": [
+        "ShoutKitApp/ShoutKitWatchApp/PrivacyInfo.xcprivacy",
+        "ShoutKitApp/ShoutKitTVApp/PrivacyInfo.xcprivacy"
+      ],
+      "expected": ["NSPrivacyAccessedAPICategoryUserDefaults"]
+    }
+  },
+  {
+    "id": 6,
+    "repo": "rnmapbox/maps",
+    "cloneUrl": "https://github.com/rnmapbox/maps.git",
+    "commitBefore": "cbf2a2d0045b46258270f27959bef9bde04c72bc",
+    "resolvedCommitBefore": "cbf2a2d0045b46258270f27959bef9bde04c72bc",
+    "commitAfter": null,
+    "difficulty": "alta",
+    "isNegativeCase": true,
+    "issueUrl": "",
+    "prUrl": "",
+    "validated": "2026-08-29: fixado no HEAD do clone (tag 10.3.5). RNMBXModule.swift:120 => 'UserDefaults.standard.set(telemetryEnabled, forKey: \"MGLMapboxMetricsEnabled\")'. Nenhum PrivacyInfo.xcprivacy em ios/ (só no example/). Caso negativo: sem correção de referência.",
+    "groundTruth": {
+      "problem": "ios/RNMBX/RNMBXModule.swift:120 chama UserDefaults.standard sem declaração; a lib não tem nenhum PrivacyInfo.xcprivacy",
+      "category": "required-reason-api-undeclared",
+      "files": ["ios/RNMBX/RNMBXModule.swift"],
+      "lines": [120],
+      "expected": ["PrivacyInfo.xcprivacy", "NSPrivacyAccessedAPICategoryUserDefaults"]
+    }
+  }
+]

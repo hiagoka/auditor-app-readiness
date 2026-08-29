@@ -1,0 +1,18 @@
+node_modules/
+.env
+.env.local
+*.log
+.DS_Store
+
+# saída de execução (regenerável)
+output/*
+!output/.gitkeep
+
+# repositórios de teste clonados inteiros (cada um com .git próprio) — regeneráveis
+# via scripts/clone-test-repos.sh. O script atual clona em ./test-repos/.
+test-repos/
+evaluation/repos/
+
+# arquivos de sondagem/scratch
+_probe.ts
+scratchpad/
