@@ -16,3 +16,7 @@ evaluation/repos/
 # arquivos de sondagem/scratch
 _probe.ts
 scratchpad/
+
+# tooling de dev do Maestri (não é o produto) + notas locais
+.maestri/
+LEIA-AO-ACORDAR.md
