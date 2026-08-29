@@ -174,14 +174,17 @@ export function collectBundle(
     if (full.length > maxFileChars) {
       truncated = true;
       const sig = firstSignalOffset(full);
-      if (sig !== null && sig + 1500 > maxFileChars) {
-        const startAt = Math.max(0, sig - 1500);
-        content =
-          `/* ...recorte a partir do caractere ${startAt} de ${full.length}... */\n` +
-          full.slice(startAt, startAt + maxFileChars);
-      } else {
-        content = full.slice(0, maxFileChars);
-      }
+      // Recorte com janela em torno do primeiro sinal, quando ele cai depois do teto.
+      const startAt =
+        sig !== null && sig + 1500 > maxFileChars ? Math.max(0, sig - 1500) : 0;
+      const slice = full.slice(startAt, startAt + maxFileChars);
+      // Prefixa cada linha do trecho com o número de linha REAL do arquivo, para o modelo
+      // conseguir citar file:line sem confundir com offset de caractere.
+      const firstLine = startAt === 0 ? 1 : full.slice(0, startAt).split("\n").length;
+      content = slice
+        .split("\n")
+        .map((l, i) => `${firstLine + i}\t${l}`)
+        .join("\n");
     }
 
     if (total + content.length > maxTotalChars) return false;

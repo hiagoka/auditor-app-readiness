@@ -1,0 +1,1172 @@
+{
+  "generatedAt": "2026-08-29T20:09:46.118Z",
+  "runs": [
+    {
+      "id": 1,
+      "repo": "auth0/react-native-auth0",
+      "slug": "1-react-native-auth0",
+      "repoPath": "/Users/hiagokalil/desafio-hackathon/test-repos/1-react-native-auth0",
+      "generatedAt": "2026-08-29T20:08:55.860Z",
+      "summary": {
+        "blocker": 3,
+        "recomendado": 0,
+        "opcional": 0
+      },
+      "findings": [
+        {
+          "id": "privacy:-:-:privacyinfo-xcprivacy-ausente",
+          "agent": "privacy",
+          "severity": "blocker",
+          "title": "PrivacyInfo.xcprivacy ausente",
+          "detail": "O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, porém distribui uma biblioteca (.podspec) e utiliza APIs que requerem declaração de motivo de privacidade a partir do iOS 17.",
+          "evidence": "Nenhum uso de required-reason API detectado neste repositório.",
+          "suggestion": "Publicar um arquivo PrivacyInfo.xcprivacy adequado para declarar todos os motivos de uso das APIs que requerem justificativa de privacidade, conforme exigido pela App Store a partir do iOS 17."
+        },
+        {
+          "id": "permissions:example/ios/Auth0Example/Info.plist:51:permiss-o-nslocationwheninuseusagedescription-com-descri-o-vazia",
+          "agent": "permissions",
+          "severity": "blocker",
+          "title": "Permissão NSLocationWhenInUseUsageDescription com descrição vazia",
+          "file": "example/ios/Auth0Example/Info.plist",
+          "line": 51,
+          "detail": "A chave NSLocationWhenInUseUsageDescription está declarada no Info.plist com uma string de descrição vazia, o que é rejeitado pela Apple.",
+          "evidence": "NSLocationWhenInUseUsageDescription = \"\"  (example/ios/Auth0Example/Info.plist:51)",
+          "suggestion": "Preencher a string de descrição com uma justificativa clara e adequada para o uso da localização ou remover a chave se não for necessária.",
+          "reference": "Guideline 5.1.1"
+        },
+        {
+          "id": "permissions:example/ios/Auth0Example/Info.plist:51:permiss-o-nslocationwheninuseusagedescription-declarada-mas-n-o-usada",
+          "agent": "permissions",
+          "severity": "blocker",
+          "title": "Permissão NSLocationWhenInUseUsageDescription declarada mas não usada",
+          "file": "example/ios/Auth0Example/Info.plist",
+          "line": 51,
+          "detail": "A permissão NSLocationWhenInUseUsageDescription está declarada no Info.plist, porém não há ocorrências de uso direto no código e não há nota de uso indireto para esta permissão, caracterizando uma permissão fantasma.",
+          "evidence": "NSLocationWhenInUseUsageDescription = \"\"  (example/ios/Auth0Example/Info.plist:51)",
+          "suggestion": "Remover a chave NSLocationWhenInUseUsageDescription do Info.plist para evitar rejeição da Apple por permissão fantasma."
+        }
+      ],
+      "agentResults": [
+        {
+          "agent": "privacy",
+          "findings": [
+            {
+              "id": "privacy:-:-:privacyinfo-xcprivacy-ausente",
+              "agent": "privacy",
+              "severity": "blocker",
+              "title": "PrivacyInfo.xcprivacy ausente",
+              "detail": "O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, porém distribui uma biblioteca (.podspec) e utiliza APIs que requerem declaração de motivo de privacidade a partir do iOS 17.",
+              "evidence": "Nenhum uso de required-reason API detectado neste repositório.",
+              "suggestion": "Publicar um arquivo PrivacyInfo.xcprivacy adequado para declarar todos os motivos de uso das APIs que requerem justificativa de privacidade, conforme exigido pela App Store a partir do iOS 17."
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJe6SBuxFOam83patwAmJEYNbEuA",
+            "object": "chat.completion",
+            "created": 1788034130,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"PrivacyInfo.xcprivacy ausente\",\"detail\":\"O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, porém distribui uma biblioteca (.podspec) e utiliza APIs que requerem declaração de motivo de privacidade a partir do iOS 17.\",\"file\":null,\"line\":null,\"evidence\":\"Nenhum uso de required-reason API detectado neste repositório.\",\"suggestion\":\"Publicar um arquivo PrivacyInfo.xcprivacy adequado para declarar todos os motivos de uso das APIs que requerem justificativa de privacidade, conforme exigido pela App Store a partir do iOS 17.\",\"reference\":null}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 817,
+              "completion_tokens": 142,
+              "total_tokens": 959,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_98cbd7835e"
+          },
+          "tokensUsed": 959,
+          "durationMs": 2499,
+          "inspected": []
+        },
+        {
+          "agent": "permissions",
+          "findings": [
+            {
+              "id": "permissions:example/ios/Auth0Example/Info.plist:51:permiss-o-nslocationwheninuseusagedescription-com-descri-o-vazia",
+              "agent": "permissions",
+              "severity": "blocker",
+              "title": "Permissão NSLocationWhenInUseUsageDescription com descrição vazia",
+              "file": "example/ios/Auth0Example/Info.plist",
+              "line": 51,
+              "detail": "A chave NSLocationWhenInUseUsageDescription está declarada no Info.plist com uma string de descrição vazia, o que é rejeitado pela Apple.",
+              "evidence": "NSLocationWhenInUseUsageDescription = \"\"  (example/ios/Auth0Example/Info.plist:51)",
+              "suggestion": "Preencher a string de descrição com uma justificativa clara e adequada para o uso da localização ou remover a chave se não for necessária.",
+              "reference": "Guideline 5.1.1"
+            },
+            {
+              "id": "permissions:example/ios/Auth0Example/Info.plist:51:permiss-o-nslocationwheninuseusagedescription-declarada-mas-n-o-usada",
+              "agent": "permissions",
+              "severity": "blocker",
+              "title": "Permissão NSLocationWhenInUseUsageDescription declarada mas não usada",
+              "file": "example/ios/Auth0Example/Info.plist",
+              "line": 51,
+              "detail": "A permissão NSLocationWhenInUseUsageDescription está declarada no Info.plist, porém não há ocorrências de uso direto no código e não há nota de uso indireto para esta permissão, caracterizando uma permissão fantasma.",
+              "evidence": "NSLocationWhenInUseUsageDescription = \"\"  (example/ios/Auth0Example/Info.plist:51)",
+              "suggestion": "Remover a chave NSLocationWhenInUseUsageDescription do Info.plist para evitar rejeição da Apple por permissão fantasma."
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJe8lE0LsDt6T0lyrZ5dC78SwVaM",
+            "object": "chat.completion",
+            "created": 1788034132,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"Permissão NSLocationWhenInUseUsageDescription com descrição vazia\",\"detail\":\"A chave NSLocationWhenInUseUsageDescription está declarada no Info.plist com uma string de descrição vazia, o que é rejeitado pela Apple.\",\"file\":\"example/ios/Auth0Example/Info.plist\",\"line\":51,\"evidence\":\"NSLocationWhenInUseUsageDescription = \\\"\\\"  (example/ios/Auth0Example/Info.plist:51)\",\"suggestion\":\"Preencher a string de descrição com uma justificativa clara e adequada para o uso da localização ou remover a chave se não for necessária.\",\"reference\":\"Guideline 5.1.1\"},{\"severity\":\"blocker\",\"title\":\"Permissão NSLocationWhenInUseUsageDescription declarada mas não usada\",\"detail\":\"A permissão NSLocationWhenInUseUsageDescription está declarada no Info.plist, porém não há ocorrências de uso direto no código e não há nota de uso indireto para esta permissão, caracterizando uma permissão fantasma.\",\"file\":\"example/ios/Auth0Example/Info.plist\",\"line\":51,\"evidence\":\"NSLocationWhenInUseUsageDescription = \\\"\\\"  (example/ios/Auth0Example/Info.plist:51)\",\"suggestion\":\"Remover a chave NSLocationWhenInUseUsageDescription do Info.plist para evitar rejeição da Apple por permissão fantasma.\",\"reference\":null}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 809,
+              "completion_tokens": 301,
+              "total_tokens": 1110,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_e2d71a067d"
+          },
+          "tokensUsed": 1110,
+          "durationMs": 3938,
+          "inspected": [
+            "example/ios/Auth0Example/Info.plist",
+            "android/src/main/java/com/auth0/react/A0Auth0Module.kt",
+            "android/src/main/java/com/auth0/react/LocalAuthenticationOptionsParser.kt",
+            "example/src/navigation/HooksDemoNavigator.tsx",
+            "ios/A0Auth0.mm",
+            "ios/NativeBridge.swift",
+            "src/exports/enums.ts",
+            "src/index.ts",
+            "src/platforms/native/bridge/NativeBridge.ts",
+            "src/platforms/native/bridge/NativeBridgeManager.ts",
+            "src/specs/NativeA0Auth0.ts",
+            "src/types/common.ts",
+            "src/types/platform-specific.ts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "repo": "react-native-image-picker/react-native-image-picker",
+      "slug": "2-react-native-image-picker",
+      "repoPath": "/Users/hiagokalil/desafio-hackathon/test-repos/2-react-native-image-picker",
+      "generatedAt": "2026-08-29T20:09:01.966Z",
+      "summary": {
+        "blocker": 3,
+        "recomendado": 0,
+        "opcional": 0
+      },
+      "findings": [
+        {
+          "id": "privacy:-:-:privacyinfo-xcprivacy-ausente",
+          "agent": "privacy",
+          "severity": "blocker",
+          "title": "PrivacyInfo.xcprivacy ausente",
+          "detail": "O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, mas utiliza APIs que requerem declaração de motivo (required-reason API) em código que distribui biblioteca. Exemplos de usos detectados:\nios/ImagePickerManager.mm:208 (2x) - uso de NSPrivacyAccessedAPICategoryFileTimestamp\nios/ImagePickerUtils.mm:125 - uso de NSPrivacyAccessedAPICategoryFileTimestamp\n\nSem manifesto aplicável, essas chamadas não estão declaradas conforme exigido a partir do iOS 17.",
+          "evidence": "creationDate em ios/ImagePickerManager.mm:208 -> NSPrivacyAccessedAPICategoryFileTimestamp (3B52.1); attributesOfItemAtPath em ios/ImagePickerUtils.mm:125 -> NSPrivacyAccessedAPICategoryFileTimestamp (3B52.1)",
+          "suggestion": "Publicar um arquivo PrivacyInfo.xcprivacy adequado para o target/módulo que declare todas as categorias de motivo necessárias para as APIs usadas, conforme a documentação da Apple para iOS 17+.",
+          "reference": "3B52.1"
+        },
+        {
+          "id": "permissions:example/ios/example/Info.plist:37:permiss-o-nslocationwheninuseusagedescription-com-descri-o-vazia",
+          "agent": "permissions",
+          "severity": "blocker",
+          "title": "Permissão NSLocationWhenInUseUsageDescription com descrição vazia",
+          "file": "example/ios/example/Info.plist",
+          "line": 37,
+          "detail": "A permissão NSLocationWhenInUseUsageDescription está declarada no Info.plist com string de descrição vazia, o que causa rejeição pela Apple.",
+          "evidence": "NSLocationWhenInUseUsageDescription = \"\"  (example/ios/example/Info.plist:37)",
+          "suggestion": "Preencher a chave NSLocationWhenInUseUsageDescription com uma descrição clara e informativa do motivo do uso da localização.",
+          "reference": "Guideline 5.1.1"
+        },
+        {
+          "id": "permissions:example/ios/example/Info.plist:37:permiss-o-nslocationwheninuseusagedescription-declarada-mas-n-o-usada",
+          "agent": "permissions",
+          "severity": "blocker",
+          "title": "Permissão NSLocationWhenInUseUsageDescription declarada mas não usada",
+          "file": "example/ios/example/Info.plist",
+          "line": 37,
+          "detail": "A permissão NSLocationWhenInUseUsageDescription está declarada no Info.plist, porém não há ocorrências de uso direto no código e não há nota de uso indireto, caracterizando permissão fantasma.",
+          "evidence": "NSLocationWhenInUseUsageDescription = \"\"  (example/ios/example/Info.plist:37)",
+          "suggestion": "Remover a chave NSLocationWhenInUseUsageDescription do Info.plist para evitar rejeição por permissão fantasma."
+        }
+      ],
+      "agentResults": [
+        {
+          "agent": "privacy",
+          "findings": [
+            {
+              "id": "privacy:-:-:privacyinfo-xcprivacy-ausente",
+              "agent": "privacy",
+              "severity": "blocker",
+              "title": "PrivacyInfo.xcprivacy ausente",
+              "detail": "O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, mas utiliza APIs que requerem declaração de motivo (required-reason API) em código que distribui biblioteca. Exemplos de usos detectados:\nios/ImagePickerManager.mm:208 (2x) - uso de NSPrivacyAccessedAPICategoryFileTimestamp\nios/ImagePickerUtils.mm:125 - uso de NSPrivacyAccessedAPICategoryFileTimestamp\n\nSem manifesto aplicável, essas chamadas não estão declaradas conforme exigido a partir do iOS 17.",
+              "evidence": "creationDate em ios/ImagePickerManager.mm:208 -> NSPrivacyAccessedAPICategoryFileTimestamp (3B52.1); attributesOfItemAtPath em ios/ImagePickerUtils.mm:125 -> NSPrivacyAccessedAPICategoryFileTimestamp (3B52.1)",
+              "suggestion": "Publicar um arquivo PrivacyInfo.xcprivacy adequado para o target/módulo que declare todas as categorias de motivo necessárias para as APIs usadas, conforme a documentação da Apple para iOS 17+.",
+              "reference": "3B52.1"
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJeC4iznHOtlI82teS3MX1KlfnDJ",
+            "object": "chat.completion",
+            "created": 1788034136,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"PrivacyInfo.xcprivacy ausente\",\"detail\":\"O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, mas utiliza APIs que requerem declaração de motivo (required-reason API) em código que distribui biblioteca. Exemplos de usos detectados:\\nios/ImagePickerManager.mm:208 (2x) - uso de NSPrivacyAccessedAPICategoryFileTimestamp\\nios/ImagePickerUtils.mm:125 - uso de NSPrivacyAccessedAPICategoryFileTimestamp\\n\\nSem manifesto aplicável, essas chamadas não estão declaradas conforme exigido a partir do iOS 17.\",\"file\":null,\"line\":null,\"evidence\":\"creationDate em ios/ImagePickerManager.mm:208 -> NSPrivacyAccessedAPICategoryFileTimestamp (3B52.1); attributesOfItemAtPath em ios/ImagePickerUtils.mm:125 -> NSPrivacyAccessedAPICategoryFileTimestamp (3B52.1)\",\"suggestion\":\"Publicar um arquivo PrivacyInfo.xcprivacy adequado para o target/módulo que declare todas as categorias de motivo necessárias para as APIs usadas, conforme a documentação da Apple para iOS 17+.\",\"reference\":\"3B52.1\"}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 954,
+              "completion_tokens": 255,
+              "total_tokens": 1209,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_98cbd7835e"
+          },
+          "tokensUsed": 1209,
+          "durationMs": 2811,
+          "inspected": [
+            "ios/ImagePickerManager.mm",
+            "ios/ImagePickerUtils.mm"
+          ]
+        },
+        {
+          "agent": "permissions",
+          "findings": [
+            {
+              "id": "permissions:example/ios/example/Info.plist:37:permiss-o-nslocationwheninuseusagedescription-com-descri-o-vazia",
+              "agent": "permissions",
+              "severity": "blocker",
+              "title": "Permissão NSLocationWhenInUseUsageDescription com descrição vazia",
+              "file": "example/ios/example/Info.plist",
+              "line": 37,
+              "detail": "A permissão NSLocationWhenInUseUsageDescription está declarada no Info.plist com string de descrição vazia, o que causa rejeição pela Apple.",
+              "evidence": "NSLocationWhenInUseUsageDescription = \"\"  (example/ios/example/Info.plist:37)",
+              "suggestion": "Preencher a chave NSLocationWhenInUseUsageDescription com uma descrição clara e informativa do motivo do uso da localização.",
+              "reference": "Guideline 5.1.1"
+            },
+            {
+              "id": "permissions:example/ios/example/Info.plist:37:permiss-o-nslocationwheninuseusagedescription-declarada-mas-n-o-usada",
+              "agent": "permissions",
+              "severity": "blocker",
+              "title": "Permissão NSLocationWhenInUseUsageDescription declarada mas não usada",
+              "file": "example/ios/example/Info.plist",
+              "line": 37,
+              "detail": "A permissão NSLocationWhenInUseUsageDescription está declarada no Info.plist, porém não há ocorrências de uso direto no código e não há nota de uso indireto, caracterizando permissão fantasma.",
+              "evidence": "NSLocationWhenInUseUsageDescription = \"\"  (example/ios/example/Info.plist:37)",
+              "suggestion": "Remover a chave NSLocationWhenInUseUsageDescription do Info.plist para evitar rejeição por permissão fantasma."
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJeFPNHafJBRP6FVEcQN3RfMyqch",
+            "object": "chat.completion",
+            "created": 1788034139,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"Permissão NSLocationWhenInUseUsageDescription com descrição vazia\",\"detail\":\"A permissão NSLocationWhenInUseUsageDescription está declarada no Info.plist com string de descrição vazia, o que causa rejeição pela Apple.\",\"file\":\"example/ios/example/Info.plist\",\"line\":37,\"evidence\":\"NSLocationWhenInUseUsageDescription = \\\"\\\"  (example/ios/example/Info.plist:37)\",\"suggestion\":\"Preencher a chave NSLocationWhenInUseUsageDescription com uma descrição clara e informativa do motivo do uso da localização.\",\"reference\":\"Guideline 5.1.1\"},{\"severity\":\"blocker\",\"title\":\"Permissão NSLocationWhenInUseUsageDescription declarada mas não usada\",\"detail\":\"A permissão NSLocationWhenInUseUsageDescription está declarada no Info.plist, porém não há ocorrências de uso direto no código e não há nota de uso indireto, caracterizando permissão fantasma.\",\"file\":\"example/ios/example/Info.plist\",\"line\":37,\"evidence\":\"NSLocationWhenInUseUsageDescription = \\\"\\\"  (example/ios/example/Info.plist:37)\",\"suggestion\":\"Remover a chave NSLocationWhenInUseUsageDescription do Info.plist para evitar rejeição por permissão fantasma.\",\"reference\":null}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 1065,
+              "completion_tokens": 284,
+              "total_tokens": 1349,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_e2d71a067d"
+          },
+          "tokensUsed": 1349,
+          "durationMs": 3292,
+          "inspected": [
+            "example/ios/example/Info.plist",
+            "example/ios/exampleTests/Info.plist",
+            "android/src/main/java/com/imagepicker/ImagePickerModuleImpl.java",
+            "android/src/newarch/java/com/imagepicker/ImagePickerModule.java",
+            "android/src/oldarch/java/com/imagepicker/ImagePickerModule.java",
+            "example/src/App.tsx",
+            "ios/ImagePickerManager.mm",
+            "ios/ImagePickerUtils.mm",
+            "src/index.ts",
+            "src/platforms/NativeImagePicker.ts",
+            "src/platforms/NativeImagePicker.web.ts",
+            "src/platforms/native.ts",
+            "ios/ImagePickerUtils.h"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "repo": "Wootric/WootricSDK-iOS",
+      "slug": "3-WootricSDK-iOS",
+      "repoPath": "/Users/hiagokalil/desafio-hackathon/test-repos/3-WootricSDK-iOS",
+      "generatedAt": "2026-08-29T20:09:11.639Z",
+      "summary": {
+        "blocker": 2,
+        "recomendado": 2,
+        "opcional": 0
+      },
+      "findings": [
+        {
+          "id": "privacy:-:-:privacyinfo-xcprivacy-ausente",
+          "agent": "privacy",
+          "severity": "blocker",
+          "title": "PrivacyInfo.xcprivacy ausente",
+          "detail": "O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, mas utiliza APIs que requerem declaração de motivo de privacidade (required-reason API). Isso é obrigatório desde iOS 17 para bibliotecas que acessam dados sensíveis.",
+          "evidence": "NSUserDefaults em WootricSDK/WootricSDK/WTRApiClient.m:529 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1); NSUserDefaults em WootricSDK/WootricSDK/WTRDefaults.m:33 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1); NSUserDefaults em WootricSDK/WootricSDKTests/WTRApiClientTests.m:94 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1); NSUserDefaults em WootricSDK/WootricSDKTests/WTRDefaultsTests.m:32 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1)",
+          "suggestion": "Publicar um arquivo PrivacyInfo.xcprivacy adequado declarando a categoria NSPrivacyAccessedAPICategoryUserDefaults (CA92.1) para o target/módulo que utiliza essas APIs.",
+          "reference": "CA92.1"
+        },
+        {
+          "id": "permissions:WootricSDK/WootricSDK/WTRSurveyViewController.m:326:permiss-o-de-fotos-usada-mas-n-o-declarada-no-info-plist",
+          "agent": "permissions",
+          "severity": "blocker",
+          "title": "Permissão de fotos usada mas não declarada no Info.plist",
+          "file": "WootricSDK/WootricSDK/WTRSurveyViewController.m",
+          "line": 326,
+          "detail": "O app utiliza a funcionalidade relacionada a fotos (UIActivityTypeSaveToCameraRoll) em WootricSDK/WootricSDK/WTRSurveyViewController.m:326 e WootricSDK/WootricSDK/WTRiPADSurveyViewController.m:291, porém não declara a chave NSPhotoLibraryUsageDescription no Info.plist. Isso causará falha em runtime ao tentar acessar a API de fotos.",
+          "evidence": "Uso de UIActivityTypeSaveToCameraRoll em WootricSDK/WootricSDK/WTRSurveyViewController.m:326",
+          "suggestion": "Adicionar a chave NSPhotoLibraryUsageDescription no Info.plist com uma descrição clara do motivo do uso da biblioteca de fotos.",
+          "reference": "Guideline 5.1.1"
+        },
+        {
+          "id": "privacy:WootricSDK/WootricSDK/WTRApiClient.m:529:uso-de-userdefaults-cru-em-vez-do-wrapper-do-projeto",
+          "agent": "privacy",
+          "severity": "recomendado",
+          "title": "Uso de UserDefaults cru em vez do wrapper do projeto",
+          "file": "WootricSDK/WootricSDK/WTRApiClient.m",
+          "line": 529,
+          "detail": "O código utiliza NSUserDefaults diretamente, embora o projeto possua um wrapper próprio (standardUserDefaults) que já carrega o motivo declarado para acesso à privacidade.",
+          "evidence": "NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];",
+          "suggestion": "Substituir o uso direto de NSUserDefaults pelo wrapper standardUserDefaults do projeto para garantir a declaração correta do motivo de privacidade."
+        },
+        {
+          "id": "privacy:WootricSDK/WootricSDK/WTRDefaults.m:33:uso-de-userdefaults-cru-em-vez-do-wrapper-do-projeto",
+          "agent": "privacy",
+          "severity": "recomendado",
+          "title": "Uso de UserDefaults cru em vez do wrapper do projeto",
+          "file": "WootricSDK/WootricSDK/WTRDefaults.m",
+          "line": 33,
+          "detail": "O código utiliza NSUserDefaults diretamente, embora o projeto possua um wrapper próprio (standardUserDefaults) que já carrega o motivo declarado para acesso à privacidade.",
+          "evidence": "NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];",
+          "suggestion": "Substituir o uso direto de NSUserDefaults pelo wrapper standardUserDefaults do projeto para garantir a declaração correta do motivo de privacidade."
+        }
+      ],
+      "agentResults": [
+        {
+          "agent": "privacy",
+          "findings": [
+            {
+              "id": "privacy:-:-:privacyinfo-xcprivacy-ausente",
+              "agent": "privacy",
+              "severity": "blocker",
+              "title": "PrivacyInfo.xcprivacy ausente",
+              "detail": "O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, mas utiliza APIs que requerem declaração de motivo de privacidade (required-reason API). Isso é obrigatório desde iOS 17 para bibliotecas que acessam dados sensíveis.",
+              "evidence": "NSUserDefaults em WootricSDK/WootricSDK/WTRApiClient.m:529 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1); NSUserDefaults em WootricSDK/WootricSDK/WTRDefaults.m:33 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1); NSUserDefaults em WootricSDK/WootricSDKTests/WTRApiClientTests.m:94 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1); NSUserDefaults em WootricSDK/WootricSDKTests/WTRDefaultsTests.m:32 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1)",
+              "suggestion": "Publicar um arquivo PrivacyInfo.xcprivacy adequado declarando a categoria NSPrivacyAccessedAPICategoryUserDefaults (CA92.1) para o target/módulo que utiliza essas APIs.",
+              "reference": "CA92.1"
+            },
+            {
+              "id": "privacy:WootricSDK/WootricSDK/WTRApiClient.m:529:uso-de-userdefaults-cru-em-vez-do-wrapper-do-projeto",
+              "agent": "privacy",
+              "severity": "recomendado",
+              "title": "Uso de UserDefaults cru em vez do wrapper do projeto",
+              "file": "WootricSDK/WootricSDK/WTRApiClient.m",
+              "line": 529,
+              "detail": "O código utiliza NSUserDefaults diretamente, embora o projeto possua um wrapper próprio (standardUserDefaults) que já carrega o motivo declarado para acesso à privacidade.",
+              "evidence": "NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];",
+              "suggestion": "Substituir o uso direto de NSUserDefaults pelo wrapper standardUserDefaults do projeto para garantir a declaração correta do motivo de privacidade."
+            },
+            {
+              "id": "privacy:WootricSDK/WootricSDK/WTRDefaults.m:33:uso-de-userdefaults-cru-em-vez-do-wrapper-do-projeto",
+              "agent": "privacy",
+              "severity": "recomendado",
+              "title": "Uso de UserDefaults cru em vez do wrapper do projeto",
+              "file": "WootricSDK/WootricSDK/WTRDefaults.m",
+              "line": 33,
+              "detail": "O código utiliza NSUserDefaults diretamente, embora o projeto possua um wrapper próprio (standardUserDefaults) que já carrega o motivo declarado para acesso à privacidade.",
+              "evidence": "NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];",
+              "suggestion": "Substituir o uso direto de NSUserDefaults pelo wrapper standardUserDefaults do projeto para garantir a declaração correta do motivo de privacidade."
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJeIbVLBoW5KzlusyVRDFzLwzdgG",
+            "object": "chat.completion",
+            "created": 1788034142,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"PrivacyInfo.xcprivacy ausente\",\"detail\":\"O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, mas utiliza APIs que requerem declaração de motivo de privacidade (required-reason API). Isso é obrigatório desde iOS 17 para bibliotecas que acessam dados sensíveis.\",\"file\":null,\"line\":null,\"evidence\":\"NSUserDefaults em WootricSDK/WootricSDK/WTRApiClient.m:529 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1); NSUserDefaults em WootricSDK/WootricSDK/WTRDefaults.m:33 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1); NSUserDefaults em WootricSDK/WootricSDKTests/WTRApiClientTests.m:94 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1); NSUserDefaults em WootricSDK/WootricSDKTests/WTRDefaultsTests.m:32 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1)\",\"suggestion\":\"Publicar um arquivo PrivacyInfo.xcprivacy adequado declarando a categoria NSPrivacyAccessedAPICategoryUserDefaults (CA92.1) para o target/módulo que utiliza essas APIs.\",\"reference\":\"CA92.1\"},{\"severity\":\"recomendado\",\"title\":\"Uso de UserDefaults cru em vez do wrapper do projeto\",\"detail\":\"O código utiliza NSUserDefaults diretamente, embora o projeto possua um wrapper próprio (standardUserDefaults) que já carrega o motivo declarado para acesso à privacidade.\",\"file\":\"WootricSDK/WootricSDK/WTRApiClient.m\",\"line\":529,\"evidence\":\"NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];\",\"suggestion\":\"Substituir o uso direto de NSUserDefaults pelo wrapper standardUserDefaults do projeto para garantir a declaração correta do motivo de privacidade.\",\"reference\":null},{\"severity\":\"recomendado\",\"title\":\"Uso de UserDefaults cru em vez do wrapper do projeto\",\"detail\":\"O código utiliza NSUserDefaults diretamente, embora o projeto possua um wrapper próprio (standardUserDefaults) que já carrega o motivo declarado para acesso à privacidade.\",\"file\":\"WootricSDK/WootricSDK/WTRDefaults.m\",\"line\":33,\"evidence\":\"NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];\",\"suggestion\":\"Substituir o uso direto de NSUserDefaults pelo wrapper standardUserDefaults do projeto para garantir a declaração correta do motivo de privacidade.\",\"reference\":null}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 1206,
+              "completion_tokens": 530,
+              "total_tokens": 1736,
+              "prompt_tokens_details": {
+                "cached_tokens": 1024,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_98cbd7835e"
+          },
+          "tokensUsed": 1736,
+          "durationMs": 6702,
+          "inspected": [
+            "WootricSDK/WootricSDK/WTRApiClient.m",
+            "WootricSDK/WootricSDK/WTRDefaults.m",
+            "WootricSDK/WootricSDKTests/WTRApiClientTests.m",
+            "WootricSDK/WootricSDKTests/WTRDefaultsTests.m"
+          ]
+        },
+        {
+          "agent": "permissions",
+          "findings": [
+            {
+              "id": "permissions:WootricSDK/WootricSDK/WTRSurveyViewController.m:326:permiss-o-de-fotos-usada-mas-n-o-declarada-no-info-plist",
+              "agent": "permissions",
+              "severity": "blocker",
+              "title": "Permissão de fotos usada mas não declarada no Info.plist",
+              "file": "WootricSDK/WootricSDK/WTRSurveyViewController.m",
+              "line": 326,
+              "detail": "O app utiliza a funcionalidade relacionada a fotos (UIActivityTypeSaveToCameraRoll) em WootricSDK/WootricSDK/WTRSurveyViewController.m:326 e WootricSDK/WootricSDK/WTRiPADSurveyViewController.m:291, porém não declara a chave NSPhotoLibraryUsageDescription no Info.plist. Isso causará falha em runtime ao tentar acessar a API de fotos.",
+              "evidence": "Uso de UIActivityTypeSaveToCameraRoll em WootricSDK/WootricSDK/WTRSurveyViewController.m:326",
+              "suggestion": "Adicionar a chave NSPhotoLibraryUsageDescription no Info.plist com uma descrição clara do motivo do uso da biblioteca de fotos.",
+              "reference": "Guideline 5.1.1"
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJeP3mUIcSjKh34iKJmu6lAmHDj4",
+            "object": "chat.completion",
+            "created": 1788034149,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"Permissão de fotos usada mas não declarada no Info.plist\",\"detail\":\"O app utiliza a funcionalidade relacionada a fotos (UIActivityTypeSaveToCameraRoll) em WootricSDK/WootricSDK/WTRSurveyViewController.m:326 e WootricSDK/WootricSDK/WTRiPADSurveyViewController.m:291, porém não declara a chave NSPhotoLibraryUsageDescription no Info.plist. Isso causará falha em runtime ao tentar acessar a API de fotos.\",\"file\":\"WootricSDK/WootricSDK/WTRSurveyViewController.m\",\"line\":326,\"evidence\":\"Uso de UIActivityTypeSaveToCameraRoll em WootricSDK/WootricSDK/WTRSurveyViewController.m:326\",\"suggestion\":\"Adicionar a chave NSPhotoLibraryUsageDescription no Info.plist com uma descrição clara do motivo do uso da biblioteca de fotos.\",\"reference\":\"Guideline 5.1.1\"}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 714,
+              "completion_tokens": 204,
+              "total_tokens": 918,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_e2d71a067d"
+          },
+          "tokensUsed": 918,
+          "durationMs": 2965,
+          "inspected": [
+            "WootricSDK-Demo/WootricSDK-Demo/Info.plist",
+            "WootricSDK-Demo/WootricSDK-DemoTests/Info.plist",
+            "WootricSDK/WootricSDK/Info.plist",
+            "WootricSDK/WootricSDKTests/Info.plist",
+            "WootricSDK/WootricSDK/WTRSurveyViewController.m",
+            "WootricSDK/WootricSDK/WTRiPADSurveyViewController.m"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "repo": "firebase/firebase-ios-sdk",
+      "slug": "4-firebase-ios-sdk",
+      "repoPath": "/Users/hiagokalil/desafio-hackathon/test-repos/4-firebase-ios-sdk",
+      "generatedAt": "2026-08-29T20:09:30.401Z",
+      "summary": {
+        "blocker": 2,
+        "recomendado": 1,
+        "opcional": 0
+      },
+      "findings": [
+        {
+          "id": "privacy:FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95:uso-de-required-reason-api-sem-manifesto-de-privacidade-aplic-vel",
+          "agent": "privacy",
+          "severity": "blocker",
+          "title": "Uso de required-reason API sem manifesto de privacidade aplicável",
+          "file": "FirebaseAppCheck/Sources/Core/FIRAppCheck.m",
+          "line": 95,
+          "detail": "Múltiplos arquivos no módulo usam APIs que requerem declaração de motivo (required-reason API) sem que exista um PrivacyInfo.xcprivacy aplicável declarando a categoria NSPrivacyAccessedAPICategoryUserDefaults. Exemplo: FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95 usa NSUserDefaults padrão sem manifesto ancestral e sem cobertura.",
+          "evidence": "Exemplos de usos sem cobertura: \n- FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h:25 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.m:23 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseAppDistribution/Sources/FIRAppDistribution.m:63 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseCore/Extension/FIRAppInternal.h:43 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseDatabase/Sources/Core/FRepoInfo.m:55 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h:37 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.m:32 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutUploader.m:69 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseInAppMessaging/Sources/Flows/FIRIAMBookKeeper.m:25 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- ... (mais usos similares)",
+          "suggestion": "Adicionar ou corrigir PrivacyInfo.xcprivacy aplicável para cada target/módulo que usa required-reason API, declarando explicitamente as categorias usadas, especialmente NSPrivacyAccessedAPICategoryUserDefaults e NSPrivacyAccessedAPICategoryFileTimestamp. Garantir que todos os arquivos que usam essas APIs estejam sob um manifesto que declare a categoria correspondente.",
+          "reference": "CA92.1, 3B52.1"
+        },
+        {
+          "id": "permissions:FirebaseAppDistributionInternal/Sources/InAppFeedback.swift:61:permiss-o-de-fotos-usada-mas-n-o-declarada-no-info-plist",
+          "agent": "permissions",
+          "severity": "blocker",
+          "title": "Permissão de fotos usada mas não declarada no Info.plist",
+          "file": "FirebaseAppDistributionInternal/Sources/InAppFeedback.swift",
+          "line": 61,
+          "detail": "A permissão para acesso a fotos (PHImageManager) é usada no código (exemplo: FirebaseAppDistributionInternal/Sources/InAppFeedback.swift:61), porém não há nenhuma chave NSPhotoLibraryUsageDescription declarada no Info.plist. Isso causará falha em runtime ao tentar acessar a API de fotos.",
+          "evidence": "Uso de PHImageManager.default() em FirebaseAppDistributionInternal/Sources/InAppFeedback.swift:61",
+          "suggestion": "Adicionar a chave NSPhotoLibraryUsageDescription no Info.plist com uma descrição adequada para justificar o uso da permissão de fotos.",
+          "reference": "Guideline 5.1.1"
+        },
+        {
+          "id": "privacy:FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95:uso-de-userdefaults-cru-em-vez-do-wrapper-do-projeto",
+          "agent": "privacy",
+          "severity": "recomendado",
+          "title": "Uso de UserDefaults cru em vez do wrapper do projeto",
+          "file": "FirebaseAppCheck/Sources/Core/FIRAppCheck.m",
+          "line": 95,
+          "detail": "Arquivos usam UserDefaults/NSUserDefaults diretamente enquanto o projeto possui wrappers próprios que já carregam o motivo declarado, por exemplo GULUserDefaults, FIRAuthUserDefaults, FIRCLSUserDefaults, entre outros. Exemplo: FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95 usa NSUserDefaults padrão diretamente.",
+          "evidence": "Exemplos de arquivos candidatos a troca por wrapper:\n- Crashlytics/Crashlytics/Handlers/FIRCLSException.mm:519\n- FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h:25\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.m:23\n- FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h:23\n- FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.m:23\n- FirebaseCore/Extension/FIRAppInternal.h:43\n- FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatLoggingTestUtils.swift:29\n- FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatStorage.swift:80\n- FirebaseCore/Sources/FIRAnalyticsConfiguration.m:52\n- ... (mais arquivos)",
+          "suggestion": "Substituir o uso direto de UserDefaults/NSUserDefaults pelo wrapper próprio do projeto correspondente para garantir que o motivo de privacidade seja corretamente declarado e gerenciado."
+        }
+      ],
+      "agentResults": [
+        {
+          "agent": "privacy",
+          "findings": [
+            {
+              "id": "privacy:FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95:uso-de-required-reason-api-sem-manifesto-de-privacidade-aplic-vel",
+              "agent": "privacy",
+              "severity": "blocker",
+              "title": "Uso de required-reason API sem manifesto de privacidade aplicável",
+              "file": "FirebaseAppCheck/Sources/Core/FIRAppCheck.m",
+              "line": 95,
+              "detail": "Múltiplos arquivos no módulo usam APIs que requerem declaração de motivo (required-reason API) sem que exista um PrivacyInfo.xcprivacy aplicável declarando a categoria NSPrivacyAccessedAPICategoryUserDefaults. Exemplo: FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95 usa NSUserDefaults padrão sem manifesto ancestral e sem cobertura.",
+              "evidence": "Exemplos de usos sem cobertura: \n- FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h:25 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.m:23 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseAppDistribution/Sources/FIRAppDistribution.m:63 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseCore/Extension/FIRAppInternal.h:43 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseDatabase/Sources/Core/FRepoInfo.m:55 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h:37 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.m:32 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutUploader.m:69 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- FirebaseInAppMessaging/Sources/Flows/FIRIAMBookKeeper.m:25 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\n- ... (mais usos similares)",
+              "suggestion": "Adicionar ou corrigir PrivacyInfo.xcprivacy aplicável para cada target/módulo que usa required-reason API, declarando explicitamente as categorias usadas, especialmente NSPrivacyAccessedAPICategoryUserDefaults e NSPrivacyAccessedAPICategoryFileTimestamp. Garantir que todos os arquivos que usam essas APIs estejam sob um manifesto que declare a categoria correspondente.",
+              "reference": "CA92.1, 3B52.1"
+            },
+            {
+              "id": "privacy:FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95:uso-de-userdefaults-cru-em-vez-do-wrapper-do-projeto",
+              "agent": "privacy",
+              "severity": "recomendado",
+              "title": "Uso de UserDefaults cru em vez do wrapper do projeto",
+              "file": "FirebaseAppCheck/Sources/Core/FIRAppCheck.m",
+              "line": 95,
+              "detail": "Arquivos usam UserDefaults/NSUserDefaults diretamente enquanto o projeto possui wrappers próprios que já carregam o motivo declarado, por exemplo GULUserDefaults, FIRAuthUserDefaults, FIRCLSUserDefaults, entre outros. Exemplo: FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95 usa NSUserDefaults padrão diretamente.",
+              "evidence": "Exemplos de arquivos candidatos a troca por wrapper:\n- Crashlytics/Crashlytics/Handlers/FIRCLSException.mm:519\n- FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h:25\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.m:23\n- FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h:23\n- FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.m:23\n- FirebaseCore/Extension/FIRAppInternal.h:43\n- FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatLoggingTestUtils.swift:29\n- FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatStorage.swift:80\n- FirebaseCore/Sources/FIRAnalyticsConfiguration.m:52\n- ... (mais arquivos)",
+              "suggestion": "Substituir o uso direto de UserDefaults/NSUserDefaults pelo wrapper próprio do projeto correspondente para garantir que o motivo de privacidade seja corretamente declarado e gerenciado."
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJeShWEsAei0Me5GGYxSm2tlbLIm",
+            "object": "chat.completion",
+            "created": 1788034152,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"Uso de required-reason API sem manifesto de privacidade aplicável\",\"detail\":\"Múltiplos arquivos no módulo usam APIs que requerem declaração de motivo (required-reason API) sem que exista um PrivacyInfo.xcprivacy aplicável declarando a categoria NSPrivacyAccessedAPICategoryUserDefaults. Exemplo: FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95 usa NSUserDefaults padrão sem manifesto ancestral e sem cobertura.\",\"file\":\"FirebaseAppCheck/Sources/Core/FIRAppCheck.m\",\"line\":95,\"evidence\":\"Exemplos de usos sem cobertura: \\n- FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h:25 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.m:23 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- FirebaseAppDistribution/Sources/FIRAppDistribution.m:63 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- FirebaseCore/Extension/FIRAppInternal.h:43 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- FirebaseDatabase/Sources/Core/FRepoInfo.m:55 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h:37 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.m:32 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutUploader.m:69 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- FirebaseInAppMessaging/Sources/Flows/FIRIAMBookKeeper.m:25 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\\n- ... (mais usos similares)\",\"suggestion\":\"Adicionar ou corrigir PrivacyInfo.xcprivacy aplicável para cada target/módulo que usa required-reason API, declarando explicitamente as categorias usadas, especialmente NSPrivacyAccessedAPICategoryUserDefaults e NSPrivacyAccessedAPICategoryFileTimestamp. Garantir que todos os arquivos que usam essas APIs estejam sob um manifesto que declare a categoria correspondente.\",\"reference\":\"CA92.1, 3B52.1\"},{\"severity\":\"recomendado\",\"title\":\"Uso de UserDefaults cru em vez do wrapper do projeto\",\"detail\":\"Arquivos usam UserDefaults/NSUserDefaults diretamente enquanto o projeto possui wrappers próprios que já carregam o motivo declarado, por exemplo GULUserDefaults, FIRAuthUserDefaults, FIRCLSUserDefaults, entre outros. Exemplo: FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95 usa NSUserDefaults padrão diretamente.\",\"file\":\"FirebaseAppCheck/Sources/Core/FIRAppCheck.m\",\"line\":95,\"evidence\":\"Exemplos de arquivos candidatos a troca por wrapper:\\n- Crashlytics/Crashlytics/Handlers/FIRCLSException.mm:519\\n- FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95\\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h:25\\n- FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.m:23\\n- FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.h:23\\n- FirebaseAuth/Sources/Storage/FIRAuthUserDefaults.m:23\\n- FirebaseCore/Extension/FIRAppInternal.h:43\\n- FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatLoggingTestUtils.swift:29\\n- FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatStorage.swift:80\\n- FirebaseCore/Sources/FIRAnalyticsConfiguration.m:52\\n- ... (mais arquivos)\",\"suggestion\":\"Substituir o uso direto de UserDefaults/NSUserDefaults pelo wrapper próprio do projeto correspondente para garantir que o motivo de privacidade seja corretamente declarado e gerenciado.\",\"reference\":null}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 5153,
+              "completion_tokens": 951,
+              "total_tokens": 6104,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_98cbd7835e"
+          },
+          "tokensUsed": 6104,
+          "durationMs": 14551,
+          "inspected": [
+            "Crashlytics/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseABTesting/Sources/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseAuth/Sources/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseCore/Extension/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseCore/Internal/Sources/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseCore/Sources/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseDynamicLinks/Sources/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseInstallations/Source/Library/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseMessaging/Sources/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseRemoteConfig/Swift/Resources/PrivacyInfo.xcprivacy",
+            "Firestore/Source/Resources/PrivacyInfo.xcprivacy",
+            "Firestore/Swift/Source/Resources/PrivacyInfo.xcprivacy",
+            "FirebaseAppCheck/Sources/Core/FIRAppCheck.m",
+            "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h",
+            "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.m",
+            "FirebaseAppDistribution/Sources/FIRAppDistribution.m",
+            "FirebaseCore/Extension/FIRAppInternal.h",
+            "FirebaseDatabase/Sources/Core/FRepoInfo.m",
+            "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.h",
+            "FirebaseInAppMessaging/Sources/Analytics/FIRIAMAnalyticsEventLoggerImpl.m",
+            "FirebaseInAppMessaging/Sources/Analytics/FIRIAMClearcutUploader.m",
+            "FirebaseInAppMessaging/Sources/Flows/FIRIAMBookKeeper.m",
+            "FirebaseInAppMessaging/Sources/Private/Analytics/FIRIAMClearcutUploader.h",
+            "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMBookKeeper.h",
+            "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMRuntimeManager.h",
+            "FirebaseInAppMessaging/Sources/Private/Runtime/FIRIAMSDKModeManager.h",
+            "FirebaseInAppMessaging/Sources/Runtime/FIRIAMRuntimeManager.m",
+            "FirebaseInAppMessaging/Sources/Runtime/FIRIAMSDKModeManager.m",
+            "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.h",
+            "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStore.m",
+            "FirebaseMLModelDownloader/Sources/DownloaderUserDefaults.swift",
+            "FirebaseMLModelDownloader/Sources/LocalModelInfo.swift",
+            "FirebaseMLModelDownloader/Sources/ModelDownloadTask.swift",
+            "FirebaseMLModelDownloader/Sources/ModelDownloader.swift",
+            "FirebaseMessaging/Sources/FIRMessaging.m",
+            "FirebaseMessaging/Sources/FIRMessagingPubSub.m",
+            "FirebaseMessaging/Sources/FIRMessagingUtilities.h",
+            "FirebaseMessaging/Sources/FIRMessagingUtilities.m",
+            "FirebaseMessaging/Sources/FIRMessaging_Private.h",
+            "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.m",
+            "FirebasePerformance/Sources/Configurations/FPRConfigurations+Private.h",
+            "FirebasePerformance/Sources/Configurations/FPRConfigurations.m",
+            "FirebasePerformance/Sources/Configurations/FPRRemoteConfigFlags+Private.h",
+            "FirebaseRemoteConfig/Sources/RCNConfigSettings.m",
+            "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h",
+            "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.m",
+            "FirebaseSessions/Sources/Settings/SettingsCacheClient.swift",
+            "Package.swift",
+            "Crashlytics/Crashlytics/Helpers/FIRCLSFile.m",
+            "Crashlytics/Crashlytics/Models/FIRCLSFileManager.m",
+            "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.m",
+            "FirebaseAuth/Sources/User/FIRUser.m"
+          ]
+        },
+        {
+          "agent": "permissions",
+          "findings": [
+            {
+              "id": "permissions:FirebaseAppDistributionInternal/Sources/InAppFeedback.swift:61:permiss-o-de-fotos-usada-mas-n-o-declarada-no-info-plist",
+              "agent": "permissions",
+              "severity": "blocker",
+              "title": "Permissão de fotos usada mas não declarada no Info.plist",
+              "file": "FirebaseAppDistributionInternal/Sources/InAppFeedback.swift",
+              "line": 61,
+              "detail": "A permissão para acesso a fotos (PHImageManager) é usada no código (exemplo: FirebaseAppDistributionInternal/Sources/InAppFeedback.swift:61), porém não há nenhuma chave NSPhotoLibraryUsageDescription declarada no Info.plist. Isso causará falha em runtime ao tentar acessar a API de fotos.",
+              "evidence": "Uso de PHImageManager.default() em FirebaseAppDistributionInternal/Sources/InAppFeedback.swift:61",
+              "suggestion": "Adicionar a chave NSPhotoLibraryUsageDescription no Info.plist com uma descrição adequada para justificar o uso da permissão de fotos.",
+              "reference": "Guideline 5.1.1"
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJeiQ1XKSNx1wYdG5hLdbP7fnNZT",
+            "object": "chat.completion",
+            "created": 1788034168,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"Permissão de fotos usada mas não declarada no Info.plist\",\"detail\":\"A permissão para acesso a fotos (PHImageManager) é usada no código (exemplo: FirebaseAppDistributionInternal/Sources/InAppFeedback.swift:61), porém não há nenhuma chave NSPhotoLibraryUsageDescription declarada no Info.plist. Isso causará falha em runtime ao tentar acessar a API de fotos.\",\"file\":\"FirebaseAppDistributionInternal/Sources/InAppFeedback.swift\",\"line\":61,\"evidence\":\"Uso de PHImageManager.default() em FirebaseAppDistributionInternal/Sources/InAppFeedback.swift:61\",\"suggestion\":\"Adicionar a chave NSPhotoLibraryUsageDescription no Info.plist com uma descrição adequada para justificar o uso da permissão de fotos.\",\"reference\":\"Guideline 5.1.1\"}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 1791,
+              "completion_tokens": 175,
+              "total_tokens": 1966,
+              "prompt_tokens_details": {
+                "cached_tokens": 1664,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_e2d71a067d"
+          },
+          "tokensUsed": 1966,
+          "durationMs": 4211,
+          "inspected": [
+            "CoreOnly/Tests/FirebasePodTest/FirebasePodTest/Info.plist",
+            "Crashlytics/UnitTests/CrashlyticsKitTests-Info.plist",
+            "Crashlytics/UnitTests/Data/GoogleService-Info.plist",
+            "Crashlytics/UnitTests/FIRCLSMachO/machO_data/armv7-armv7s.dSYM/Contents/Info.plist",
+            "Crashlytics/UnitTests/FIRCLSMachO/machO_data/i386-simulator.dSYM/Contents/Info.plist",
+            "Example/CombineSample/CombineSample/Info.plist",
+            "Example/DynamicLinks/App/GoogleService-Info.plist",
+            "Example/DynamicLinks/FDLBuilderTestAppObjCTests/Info.plist",
+            "Example/FirestoreSample/FirestoreSample/GoogleService-Info.plist",
+            "Example/tvOSSample/tvOSSample/Info.plist",
+            "Example/watchOSSample/SampleWatchAppWatchKitApp/Info.plist",
+            "Example/watchOSSample/SampleWatchAppWatchKitExtension/Info.plist",
+            "Example/watchOSSample/ServiceExtension/Info.plist",
+            "FirebaseABTesting/Tests/Integration/ABTQA/GoogleService-Info.plist",
+            "FirebaseABTesting/Tests/Integration/ABTQA/Info.plist",
+            "FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/Info.plist",
+            "FirebaseAppCheck/Apps/FIRAppCheckTestApp/FIRAppCheckTestApp/Info.plist",
+            "FirebaseAuth/Tests/Sample/ApiTests/Info.plist",
+            "FirebaseAuth/Tests/Sample/SwiftApiTests/Info.plist",
+            "FirebaseCore/Tests/Unit/Resources/GoogleService-Info.plist",
+            "FirebaseDatabase/Tests/Resources/GoogleService-Info.plist",
+            "FirebaseDynamicLinks/Tests/Sample/FDLBuilderTestAppObjC/Info.plist",
+            "FirebaseDynamicLinks/Tests/Unit/DL-Info.plist",
+            "FirebaseInAppMessaging/Swift/Tests/Integration/FIAMSwiftUI/iOS/Info.plist",
+            "FirebaseInAppMessaging/Swift/Tests/Integration/FIAMSwiftUI/macOS/Info.plist",
+            "FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/FiamDisplaySwiftExample/Info.plist",
+            "FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-UITests/Info.plist",
+            "FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/App/InAppMessaging-Example-iOS/Info.plist",
+            "FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/ExternalAppExample/fiam-external-ios-testing-app/GoogleService-Info.plist",
+            "FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/ExternalAppExample/fiam-external-ios-testing-app/fiam-external-ios-testing-app/Info.plist",
+            "FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/GoogleService-Info.plist",
+            "FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/InAppMessaging_Example_iOS_SwiftUITests/Info.plist",
+            "FirebaseInAppMessaging/Tests/Unit/Info.plist",
+            "FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp/Info.plist",
+            "FirebaseMessaging/Apps/AdvancedSample/AdvancedSample/Info.plist",
+            "FirebaseMessaging/Apps/AdvancedSample/AppClips/Info.plist",
+            "FirebaseMessaging/Apps/AdvancedSample/NotificationServiceExtension/Info.plist",
+            "FirebaseMessaging/Apps/AdvancedSample/SampleWatchWatchKitApp/Info.plist",
+            "FirebaseMessaging/Apps/AdvancedSample/SampleWatchWatchKitExtension/Info.plist",
+            "FirebaseMessaging/Apps/Sample/Sample/Info.plist",
+            "FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchApp-Watch-App-Info.plist",
+            "FirebaseMessaging/Apps/SwiftUISample/SwiftUISample/Info.plist",
+            "FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EAutopush/Info.plist",
+            "FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EProd/Info.plist",
+            "FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EUITests/Autopush/Info.plist",
+            "FirebasePerformance/Tests/FIRPerfE2E/FIRPerfE2EUITests/Prod/Info.plist",
+            "FirebasePerformance/Tests/TestApp/Source/Info.plist",
+            "FirebasePerformance/Tests/TestApp/Tests/Info.plist",
+            "FirebasePerformance/Tests/Unit/FPRURLFilterTests-Info.plist",
+            "FirebaseRemoteConfig/Tests/Sample/GoogleService-Info.plist",
+            "FirebaseRemoteConfig/Tests/Sample/RemoteConfigSampleApp/Info.plist",
+            "FirebaseRemoteConfig/Tests/Sample/RemoteConfigSampleAppUITests/Info.plist",
+            "FirebaseRemoteConfig/Tests/Unit/Defaults-testInfo.plist",
+            "FirebaseRemoteConfig/Tests/Unit/SecondApp-GoogleService-Info.plist",
+            "FirebaseRemoteConfigSwift/Tests/Defaults-testInfo.plist",
+            "Firestore/Example/App/GoogleService-Info.plist",
+            "Firestore/Example/App/iOS/Firestore-Info.plist",
+            "Firestore/Example/App/macOS/Info.plist",
+            "Firestore/Example/App/tvOS/Info.plist",
+            "Firestore/Example/Benchmarks/Info.plist",
+            "Firestore/Example/FuzzTests/Firestore_FuzzTests_iOS-Info.plist",
+            "Firestore/Example/Tests/Tests-Info.plist",
+            "Firestore/Swift/Tests/Info.plist",
+            "IntegrationTesting/CocoapodsIntegrationTest/CocoapodsIntegrationTest/Info.plist",
+            "ReleaseTooling/Template/Info.plist",
+            "SymbolCollisionTest/SymbolCollisionTest/Info.plist",
+            "FirebaseAppDistributionInternal/Sources/InAppFeedback.swift"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "repo": "cascadiacollections/shoutkit",
+      "slug": "5-shoutkit",
+      "repoPath": "/Users/hiagokalil/desafio-hackathon/test-repos/5-shoutkit",
+      "generatedAt": "2026-08-29T20:09:38.429Z",
+      "summary": {
+        "blocker": 1,
+        "recomendado": 0,
+        "opcional": 0
+      },
+      "findings": [
+        {
+          "id": "privacy:Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift:28:uso-de-required-reason-api-sem-manifesto-aplic-vel",
+          "agent": "privacy",
+          "severity": "blocker",
+          "title": "Uso de required-reason API sem manifesto aplicável",
+          "file": "Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift",
+          "line": 28,
+          "detail": "O módulo/targuet Packages/FeatureFlags, Packages/Persistence, Packages/Playback, ShoutKitApp/ShoutKitTests e ShoutKitApp/ShoutKitWatchApp usam APIs que requerem declaração de motivo (UserDefaults) sem manifesto de privacidade aplicável (PrivacyInfo.xcprivacy). O manifesto existente cobre NSPrivacyAccessedAPICategoryUserDefaults, mas não se aplica aos arquivos listados (manifest ancestral: nenhum).",
+          "evidence": "UserDefaults em Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift:28 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/FeatureFlags/Sources/FeatureFlags/DefaultsFeatureFlagService.swift:12 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/Persistence/Sources/Persistence/DefaultsKey.swift:3 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/Persistence/Sources/Persistence/SettingsStore.swift:4 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/Playback/Sources/Playback/PlaybackController.swift:114 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em ShoutKitApp/ShoutKitTests/IntentSupportTests.swift:11 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em ShoutKitApp/ShoutKitWatchApp/WatchAppDependencies.swift:80 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)",
+          "suggestion": "Adicionar um PrivacyInfo.xcprivacy aplicável para cada target/módulo que usa APIs requerendo declaração de motivo, declarando a categoria NSPrivacyAccessedAPICategoryUserDefaults para cobrir esses usos.",
+          "reference": "CA92.1"
+        }
+      ],
+      "agentResults": [
+        {
+          "agent": "privacy",
+          "findings": [
+            {
+              "id": "privacy:Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift:28:uso-de-required-reason-api-sem-manifesto-aplic-vel",
+              "agent": "privacy",
+              "severity": "blocker",
+              "title": "Uso de required-reason API sem manifesto aplicável",
+              "file": "Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift",
+              "line": 28,
+              "detail": "O módulo/targuet Packages/FeatureFlags, Packages/Persistence, Packages/Playback, ShoutKitApp/ShoutKitTests e ShoutKitApp/ShoutKitWatchApp usam APIs que requerem declaração de motivo (UserDefaults) sem manifesto de privacidade aplicável (PrivacyInfo.xcprivacy). O manifesto existente cobre NSPrivacyAccessedAPICategoryUserDefaults, mas não se aplica aos arquivos listados (manifest ancestral: nenhum).",
+              "evidence": "UserDefaults em Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift:28 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/FeatureFlags/Sources/FeatureFlags/DefaultsFeatureFlagService.swift:12 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/Persistence/Sources/Persistence/DefaultsKey.swift:3 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/Persistence/Sources/Persistence/SettingsStore.swift:4 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/Playback/Sources/Playback/PlaybackController.swift:114 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em ShoutKitApp/ShoutKitTests/IntentSupportTests.swift:11 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em ShoutKitApp/ShoutKitWatchApp/WatchAppDependencies.swift:80 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)",
+              "suggestion": "Adicionar um PrivacyInfo.xcprivacy aplicável para cada target/módulo que usa APIs requerendo declaração de motivo, declarando a categoria NSPrivacyAccessedAPICategoryUserDefaults para cobrir esses usos.",
+              "reference": "CA92.1"
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJekveJSeD1tW6BGXxk5ZTwhjuot",
+            "object": "chat.completion",
+            "created": 1788034170,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"Uso de required-reason API sem manifesto aplicável\",\"detail\":\"O módulo/targuet Packages/FeatureFlags, Packages/Persistence, Packages/Playback, ShoutKitApp/ShoutKitTests e ShoutKitApp/ShoutKitWatchApp usam APIs que requerem declaração de motivo (UserDefaults) sem manifesto de privacidade aplicável (PrivacyInfo.xcprivacy). O manifesto existente cobre NSPrivacyAccessedAPICategoryUserDefaults, mas não se aplica aos arquivos listados (manifest ancestral: nenhum).\",\"file\":\"Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift\",\"line\":28,\"evidence\":\"UserDefaults em Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift:28 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/FeatureFlags/Sources/FeatureFlags/DefaultsFeatureFlagService.swift:12 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/Persistence/Sources/Persistence/DefaultsKey.swift:3 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/Persistence/Sources/Persistence/SettingsStore.swift:4 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em Packages/Playback/Sources/Playback/PlaybackController.swift:114 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em ShoutKitApp/ShoutKitTests/IntentSupportTests.swift:11 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1); UserDefaults em ShoutKitApp/ShoutKitWatchApp/WatchAppDependencies.swift:80 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1/1C8F.1)\",\"suggestion\":\"Adicionar um PrivacyInfo.xcprivacy aplicável para cada target/módulo que usa APIs requerendo declaração de motivo, declarando a categoria NSPrivacyAccessedAPICategoryUserDefaults para cobrir esses usos.\",\"reference\":\"CA92.1\"}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 1323,
+              "completion_tokens": 482,
+              "total_tokens": 1805,
+              "prompt_tokens_details": {
+                "cached_tokens": 1152,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_98cbd7835e"
+          },
+          "tokensUsed": 1805,
+          "durationMs": 7217,
+          "inspected": [
+            "ShoutKitApp/ShoutKitApp/PrivacyInfo.xcprivacy",
+            "Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift",
+            "Packages/FeatureFlags/Sources/FeatureFlags/DefaultsFeatureFlagService.swift",
+            "Packages/Persistence/Sources/Persistence/DefaultsKey.swift",
+            "Packages/Persistence/Sources/Persistence/SettingsStore.swift",
+            "Packages/Playback/Sources/Playback/PlaybackController.swift",
+            "ShoutKitApp/ShoutKitTests/IntentSupportTests.swift",
+            "ShoutKitApp/ShoutKitWatchApp/WatchAppDependencies.swift"
+          ]
+        },
+        {
+          "agent": "permissions",
+          "findings": [],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJeracXMra20IMgmzM1uNPNBpv4A",
+            "object": "chat.completion",
+            "created": 1788034177,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 725,
+              "completion_tokens": 5,
+              "total_tokens": 730,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_e2d71a067d"
+          },
+          "tokensUsed": 730,
+          "durationMs": 810,
+          "inspected": [
+            "ShoutKitApp/ShoutKitApp/Info.plist",
+            "ShoutKitApp/ShoutKitTVApp/Info.plist",
+            "ShoutKitApp/ShoutKitWatchApp/Info.plist",
+            "ShoutKitApp/ShoutKitWatchWidgets/Info.plist",
+            "ShoutKitApp/ShoutKitWidgets/Info.plist",
+            "ShoutKitApp/ShoutKitApp/GeoStationLocationCoordinator.swift"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "repo": "rnmapbox/maps",
+      "slug": "6-maps",
+      "repoPath": "/Users/hiagokalil/desafio-hackathon/test-repos/6-maps",
+      "generatedAt": "2026-08-29T20:09:46.118Z",
+      "summary": {
+        "blocker": 2,
+        "recomendado": 0,
+        "opcional": 0
+      },
+      "findings": [
+        {
+          "id": "privacy:ios/RNMBX/RNMBXModule.swift:120:privacyinfo-xcprivacy-ausente",
+          "agent": "privacy",
+          "severity": "blocker",
+          "title": "PrivacyInfo.xcprivacy ausente",
+          "file": "ios/RNMBX/RNMBXModule.swift",
+          "line": 120,
+          "detail": "O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, mas distribui uma biblioteca e utiliza APIs que requerem declaração de motivo de privacidade. Exemplo de uso não declarado: ios/RNMBX/RNMBXModule.swift:120 usa UserDefaults (NSPrivacyAccessedAPICategoryUserDefaults, CA92.1).",
+          "evidence": "UserDefaults em ios/RNMBX/RNMBXModule.swift:120 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1)",
+          "suggestion": "Publicar um arquivo PrivacyInfo.xcprivacy declarando todas as categorias de APIs requeridas usadas no código, incluindo NSPrivacyAccessedAPICategoryUserDefaults, para cumprir os requisitos do iOS 17.",
+          "reference": "CA92.1"
+        },
+        {
+          "id": "permissions:example/ios/RNMapboxExample/Info.plist:40:permiss-es-de-localiza-o-declaradas-mas-n-o-usadas",
+          "agent": "permissions",
+          "severity": "blocker",
+          "title": "Permissões de localização declaradas mas não usadas",
+          "file": "example/ios/RNMapboxExample/Info.plist",
+          "line": 40,
+          "detail": "As permissões NSLocationAlwaysAndWhenInUseUsageDescription, NSLocationAlwaysUsageDescription e NSLocationWhenInUseUsageDescription estão declaradas no Info.plist, mas não há ocorrências de uso no código. Não há nota de uso indireto para justificar a presença dessas chaves.",
+          "evidence": "NSLocationAlwaysAndWhenInUseUsageDescription = \"Show current location on map\"  (example/ios/RNMapboxExample/Info.plist:40)\nNSLocationAlwaysUsageDescription = \"Show current location on map\"  (example/ios/RNMapboxExample/Info.plist:42)\nNSLocationWhenInUseUsageDescription = \"Show current location on map\"  (example/ios/RNMapboxExample/Info.plist:44)",
+          "suggestion": "Remover as chaves NSLocationAlwaysAndWhenInUseUsageDescription, NSLocationAlwaysUsageDescription e NSLocationWhenInUseUsageDescription do Info.plist para evitar rejeição por permissões fantasma.",
+          "reference": "Guideline 5.1.1"
+        }
+      ],
+      "agentResults": [
+        {
+          "agent": "privacy",
+          "findings": [
+            {
+              "id": "privacy:ios/RNMBX/RNMBXModule.swift:120:privacyinfo-xcprivacy-ausente",
+              "agent": "privacy",
+              "severity": "blocker",
+              "title": "PrivacyInfo.xcprivacy ausente",
+              "file": "ios/RNMBX/RNMBXModule.swift",
+              "line": 120,
+              "detail": "O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, mas distribui uma biblioteca e utiliza APIs que requerem declaração de motivo de privacidade. Exemplo de uso não declarado: ios/RNMBX/RNMBXModule.swift:120 usa UserDefaults (NSPrivacyAccessedAPICategoryUserDefaults, CA92.1).",
+              "evidence": "UserDefaults em ios/RNMBX/RNMBXModule.swift:120 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1)",
+              "suggestion": "Publicar um arquivo PrivacyInfo.xcprivacy declarando todas as categorias de APIs requeridas usadas no código, incluindo NSPrivacyAccessedAPICategoryUserDefaults, para cumprir os requisitos do iOS 17.",
+              "reference": "CA92.1"
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJesqrp1tpxawuvGlhOa4BB5EgGU",
+            "object": "chat.completion",
+            "created": 1788034178,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"PrivacyInfo.xcprivacy ausente\",\"detail\":\"O repositório não possui nenhum arquivo PrivacyInfo.xcprivacy publicado, mas distribui uma biblioteca e utiliza APIs que requerem declaração de motivo de privacidade. Exemplo de uso não declarado: ios/RNMBX/RNMBXModule.swift:120 usa UserDefaults (NSPrivacyAccessedAPICategoryUserDefaults, CA92.1).\",\"file\":\"ios/RNMBX/RNMBXModule.swift\",\"line\":120,\"evidence\":\"UserDefaults em ios/RNMBX/RNMBXModule.swift:120 -> NSPrivacyAccessedAPICategoryUserDefaults (CA92.1)\",\"suggestion\":\"Publicar um arquivo PrivacyInfo.xcprivacy declarando todas as categorias de APIs requeridas usadas no código, incluindo NSPrivacyAccessedAPICategoryUserDefaults, para cumprir os requisitos do iOS 17.\",\"reference\":\"CA92.1\"}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 877,
+              "completion_tokens": 203,
+              "total_tokens": 1080,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_98cbd7835e"
+          },
+          "tokensUsed": 1080,
+          "durationMs": 3702,
+          "inspected": [
+            "ios/RNMBX/RNMBXModule.swift"
+          ]
+        },
+        {
+          "agent": "permissions",
+          "findings": [
+            {
+              "id": "permissions:example/ios/RNMapboxExample/Info.plist:40:permiss-es-de-localiza-o-declaradas-mas-n-o-usadas",
+              "agent": "permissions",
+              "severity": "blocker",
+              "title": "Permissões de localização declaradas mas não usadas",
+              "file": "example/ios/RNMapboxExample/Info.plist",
+              "line": 40,
+              "detail": "As permissões NSLocationAlwaysAndWhenInUseUsageDescription, NSLocationAlwaysUsageDescription e NSLocationWhenInUseUsageDescription estão declaradas no Info.plist, mas não há ocorrências de uso no código. Não há nota de uso indireto para justificar a presença dessas chaves.",
+              "evidence": "NSLocationAlwaysAndWhenInUseUsageDescription = \"Show current location on map\"  (example/ios/RNMapboxExample/Info.plist:40)\nNSLocationAlwaysUsageDescription = \"Show current location on map\"  (example/ios/RNMapboxExample/Info.plist:42)\nNSLocationWhenInUseUsageDescription = \"Show current location on map\"  (example/ios/RNMapboxExample/Info.plist:44)",
+              "suggestion": "Remover as chaves NSLocationAlwaysAndWhenInUseUsageDescription, NSLocationAlwaysUsageDescription e NSLocationWhenInUseUsageDescription do Info.plist para evitar rejeição por permissões fantasma.",
+              "reference": "Guideline 5.1.1"
+            }
+          ],
+          "rawModelResponse": {
+            "id": "chatcmpl-EIJewb7S0rhre4rxMWjXRMbsnGa7x",
+            "object": "chat.completion",
+            "created": 1788034182,
+            "model": "gpt-4.1-mini-2025-04-14",
+            "choices": [
+              {
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "{\"findings\":[{\"severity\":\"blocker\",\"title\":\"Permissões de localização declaradas mas não usadas\",\"detail\":\"As permissões NSLocationAlwaysAndWhenInUseUsageDescription, NSLocationAlwaysUsageDescription e NSLocationWhenInUseUsageDescription estão declaradas no Info.plist, mas não há ocorrências de uso no código. Não há nota de uso indireto para justificar a presença dessas chaves.\",\"file\":\"example/ios/RNMapboxExample/Info.plist\",\"line\":40,\"evidence\":\"NSLocationAlwaysAndWhenInUseUsageDescription = \\\"Show current location on map\\\"  (example/ios/RNMapboxExample/Info.plist:40)\\nNSLocationAlwaysUsageDescription = \\\"Show current location on map\\\"  (example/ios/RNMapboxExample/Info.plist:42)\\nNSLocationWhenInUseUsageDescription = \\\"Show current location on map\\\"  (example/ios/RNMapboxExample/Info.plist:44)\",\"suggestion\":\"Remover as chaves NSLocationAlwaysAndWhenInUseUsageDescription, NSLocationAlwaysUsageDescription e NSLocationWhenInUseUsageDescription do Info.plist para evitar rejeição por permissões fantasma.\",\"reference\":\"Guideline 5.1.1\"}]}",
+                  "refusal": null,
+                  "annotations": []
+                },
+                "logprobs": null,
+                "finish_reason": "stop"
+              }
+            ],
+            "usage": {
+              "prompt_tokens": 684,
+              "completion_tokens": 261,
+              "total_tokens": 945,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+              }
+            },
+            "service_tier": "default",
+            "system_fingerprint": "fp_e2d71a067d"
+          },
+          "tokensUsed": 945,
+          "durationMs": 3987,
+          "inspected": [
+            "example/ios/RNMapboxExample/Info.plist"
+          ]
+        }
+      ]
+    }
+  ]
+}

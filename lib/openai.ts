@@ -55,29 +55,44 @@ export function extractJson(text: string): unknown {
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
 /**
- * Reexecuta em 429 de throttle (respeitando o header de reset), até `attempts` vezes.
- * Falha na hora quando a requisição é grande demais para o limite da org — esperar não resolve.
+ * Reexecuta em 429 de throttle (respeitando o header de reset) e em erro de conexão
+ * (DNS/timeout/reset), até `attempts` vezes. Falha na hora quando a requisição é grande demais
+ * para o limite da org — esperar não resolve.
  */
-async function withRetry<R>(fn: () => Promise<R>, attempts = 4): Promise<R> {
+async function withRetry<R>(fn: () => Promise<R>, attempts = 5): Promise<R> {
   for (let i = 1; ; i++) {
     try {
       return await fn();
     } catch (err) {
-      const e = err as { status?: number; message?: string; headers?: Record<string, string> };
+      const e = err as {
+        status?: number;
+        message?: string;
+        name?: string;
+        code?: string;
+        headers?: Record<string, string>;
+        cause?: { code?: string };
+      };
       const is429 = e.status === 429;
       const tooLarge = /request too large/i.test(e.message ?? "");
-      if (!is429 || tooLarge || i >= attempts) {
-        if (tooLarge) {
-          throw new Error(
-            `${e.message}\n> a org tem um limite de tokens/min baixo; reduza maxTotalChars em collectBundle ou use um modelo com TPM maior (ex.: gpt-4.1-mini).`,
-          );
-        }
-        throw err;
+      const connCode = e.code ?? e.cause?.code ?? "";
+      const isConn =
+        e.name === "APIConnectionError" ||
+        e.name === "APIConnectionTimeoutError" ||
+        ["ENOTFOUND", "ECONNRESET", "ECONNREFUSED", "ETIMEDOUT", "EAI_AGAIN"].includes(connCode);
+
+      if (tooLarge) {
+        throw new Error(
+          `${e.message}\n> a org tem um limite de tokens/min baixo; reduza maxTotalChars em collectBundle ou use um modelo com TPM maior (ex.: gpt-4.1-mini).`,
+        );
       }
+      if ((!is429 && !isConn) || i >= attempts) throw err;
+
       const resetHeader = e.headers?.["x-ratelimit-reset-tokens"] ?? "";
       const waitSec = Number.parseFloat(resetHeader) || 2 ** i;
       const waitMs = Math.min(Math.ceil(waitSec * 1000) + 500, 60_000);
-      console.error(`[openai] 429 throttle — tentativa ${i}/${attempts}, aguardando ${waitMs}ms`);
+      console.error(
+        `[openai] ${is429 ? "429 throttle" : `conexão (${connCode || e.name})`} — tentativa ${i}/${attempts}, aguardando ${waitMs}ms`,
+      );
       await sleep(waitMs);
     }
   }
