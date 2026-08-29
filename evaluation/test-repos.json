@@ -29,14 +29,33 @@
     "isNegativeCase": false,
     "issueUrl": "",
     "prUrl": "",
-    "validated": "2026-08-29: bug confirmado. Arquivo é ImagePickerManager.mm (não .m); phAsset.creationDate nas linhas 208 e 311; a lib (ios/) não traz PrivacyInfo.xcprivacy.",
+    "exercisesAgents": ["privacy", "permissions"],
+    "validated": "2026-08-29: (privacidade) confirmado — arquivo é ImagePickerManager.mm (não .m), phAsset.creationDate nas linhas 208 e 311, a lib (ios/) não traz PrivacyInfo.xcprivacy. (permissões) NSLocationWhenInUseUsageDescription em example/ios/example/Info.plist declarada com <string></string> vazia; grep de CLLocation/CoreLocation/Geolocation/requestWhenInUse/locationManager/navigator.geolocation em example/ios, example/src, src e ios: zero uso. Permissão fantasma real, não sintética.",
     "groundTruth": {
-      "problem": "Uso de phAsset.creationDate em ios/ImagePickerManager.mm sem declarar NSPrivacyAccessedAPICategoryFileTimestamp (motivo 3B52.1)",
+      "problem": "(1) Privacidade: uso de phAsset.creationDate em ios/ImagePickerManager.mm sem declarar NSPrivacyAccessedAPICategoryFileTimestamp (motivo 3B52.1). (2) Permissões: NSLocationWhenInUseUsageDescription declarada no example/ios/example/Info.plist é permissão fantasma — descrição vazia e nenhum uso de API de localização no app.",
       "category": "required-reason-api-undeclared",
       "files": ["ios/ImagePickerManager.mm"],
       "lines": [208, 311],
       "reference": "3B52.1",
-      "expected": ["NSPrivacyAccessedAPICategoryFileTimestamp"]
+      "expected": ["NSPrivacyAccessedAPICategoryFileTimestamp"],
+      "phantom_permissions": [
+        {
+          "key": "NSLocationWhenInUseUsageDescription",
+          "file": "example/ios/example/Info.plist",
+          "evidence": "<key>NSLocationWhenInUseUsageDescription</key><string></string> (descrição vazia — rejeição por si só)",
+          "checked_for_usage": "grep de CLLocation|CoreLocation|Geolocation|requestWhenInUse|locationManager|navigator.geolocation em example/ios, example/src, src, ios",
+          "usage_found": false,
+          "verdict": "fantasma — declarada e não usada; lib de foto/câmera não acessa localização"
+        }
+      ],
+      "not_phantom_for_contrast": [
+        {
+          "key": "NSMicrophoneUsageDescription",
+          "file": "example/ios/example/Info.plist",
+          "reason": "Uso indireto: o app grava vídeo (mediaType:'video' em example/src/App.tsx:114,123; AVCaptureDevice AVMediaTypeVideo em ios/ImagePickerManager.mm:328,334) e a captura de vídeo via UIImagePickerController grava áudio sem o app chamar AVAudioSession diretamente. Caso-armadilha: grep ingênuo por 'microphone' marcaria como fantasma. NÃO deve ser reportada como fantasma."
+        }
+      ],
+      "legitimate_permissions": ["NSCameraUsageDescription", "NSPhotoLibraryUsageDescription"]
     }
   },
   {
