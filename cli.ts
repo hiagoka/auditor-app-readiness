@@ -5,21 +5,17 @@ import { resolve } from "node:path";
 
 import { runPrivacyAgent } from "./agents/privacy-agent";
 import { runPermissionsAgent } from "./agents/permissions-agent";
-import { runGuidelinesAgent } from "./agents/guidelines-agent";
 import { orchestrate } from "./agents/orchestrator";
 import { generateHtml } from "./report/generate-html";
 import type { AgentResult, AuditReport } from "./lib/types";
 
-const USAGE =
-  "uso: npm run audit -- --repo ./caminho/do/app [--guidelines] [--accessibility] [--out output]";
+const USAGE = "uso: npm run audit -- --repo ./caminho/do/app [--out output]";
 
 async function main(): Promise<void> {
   const { values } = parseArgs({
     options: {
       repo: { type: "string" },
       out: { type: "string", default: "output" },
-      guidelines: { type: "boolean", default: false },
-      accessibility: { type: "boolean", default: false },
     },
   });
 
@@ -31,18 +27,13 @@ async function main(): Promise<void> {
   const repoPath = resolve(values.repo);
   console.error(`[auditor] analisando ${repoPath}`);
 
+  // Agentes entregues: Privacidade e Permissões. Guidelines e Acessibilidade estão previstos
+  // na arquitetura (agents/guidelines-agent.ts, agents/accessibility-agent.ts) mas são esqueletos
+  // não implementados — não entram no pipeline.
   const agentResults: AgentResult[] = [
     await runPrivacyAgent({ repoPath }),
     await runPermissionsAgent({ repoPath }),
   ];
-
-  if (values.guidelines) {
-    agentResults.push(await runGuidelinesAgent({ repoPath, upstream: agentResults }));
-  }
-  if (values.accessibility) {
-    const { runAccessibilityAgent } = await import("./agents/accessibility-agent");
-    agentResults.push(await runAccessibilityAgent({ repoPath }));
-  }
 
   const report: AuditReport = await orchestrate({ repoPath, agentResults });
 

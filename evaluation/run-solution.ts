@@ -5,14 +5,12 @@ import { existsSync } from "node:fs";
 
 import { runPrivacyAgent } from "../agents/privacy-agent";
 import { runPermissionsAgent } from "../agents/permissions-agent";
-import { runGuidelinesAgent } from "../agents/guidelines-agent";
 import { orchestrate } from "../agents/orchestrator";
 import type { AgentResult } from "../lib/types";
 import testRepos from "./test-repos.json" with { type: "json" };
 
 const ROOT = resolve(import.meta.dirname, "..");
 const OUT = resolve(ROOT, "evaluation/out");
-const WITH_GUIDELINES = process.argv.includes("--guidelines");
 
 async function main(): Promise<void> {
   await mkdir(OUT, { recursive: true });
@@ -31,9 +29,6 @@ async function main(): Promise<void> {
       await runPrivacyAgent({ repoPath }),
       await runPermissionsAgent({ repoPath }),
     ];
-    if (WITH_GUIDELINES) {
-      agentResults.push(await runGuidelinesAgent({ repoPath, upstream: agentResults }));
-    }
 
     const report = await orchestrate({ repoPath, agentResults });
     runs.push({ id: spec.id, repo: spec.repo, slug, ...report });

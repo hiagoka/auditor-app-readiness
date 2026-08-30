@@ -12,12 +12,12 @@ produto no `README.md`; plano de iterações no `CHANGELOG.md`; dataset e reprod
 ## Comandos
 
 ```bash
-npm run audit -- --repo ./app [--guidelines] [--accessibility] [--out output]
+npm run audit -- --repo ./app [--out output]
 npm run typecheck        # tsc --noEmit — rode antes de considerar qualquer mudança pronta
 npm run clone-repos      # clona evaluation/test-repos.json em test-repos/ no commitBefore
 npm run baseline         # roda o 1-prompt contra os repos -> evaluation/out/baseline.json
 npm run eval             # roda o pipeline -> evaluation/out/solution.json
-npm run fill-results     # preenche [preencher] em results.md/CHANGELOG (determinístico, sem IA)
+npm run fill-results     # scorer determinístico (sem IA) -> métricas em results.md e CHANGELOG
 ```
 
 ## Arquitetura
@@ -26,21 +26,25 @@ Fluxo: `cli.ts` → agentes em `agents/` → `agents/orchestrator.ts` → `repor
 `output/resultado.json` + `output/relatorio.html`.
 
 - **Toda chamada ao modelo passa por `askJson()` em `lib/openai.ts`.** Não chamar o SDK da OpenAI
-  direto de um agente. `webSearch: true` só no agente de Guidelines.
+  direto de um agente. (`webSearch: true` existe em `askJson` mas hoje ninguém usa — seria do
+  agente de Guidelines, que é esqueleto não implementado.)
 - **Provedor de IA: OpenAI** (a seção 12 do plano original menciona Anthropic por engano — ignore).
 - Cada agente segue o mesmo padrão: lê/prepara arquivos → monta prompt especializado → `askJson`
   → mapeia a resposta para `Finding[]`. Retorna `AgentResult` com `inspected` (o que leu) e
   `tokensUsed` preenchidos — isso alimenta a trajetória do agente e as métricas.
-- **O orquestrador faz dedupe e priorização em código puro.** Só a resolução de *conflito de
-  severidade* entre agentes pode custar 1 chamada de IA. `report/generate-html.ts` nunca chama IA.
+- **O orquestrador**: dedupe determinístico por `id` (código puro) + **1 chamada de IA** que
+  planeja agrupamento de achados do mesmo problema-raiz, severidade do grupo e ordem; o código
+  aplica o plano. Fallback determinístico se a chamada falhar. `report/generate-html.ts` nunca
+  chama IA.
 - Tipos compartilhados em `lib/types.ts`. IDs de achado via `makeFindingId()`.
 - ESM (`"type": "module"`), `moduleResolution: "Bundler"` → imports relativos **sem** extensão.
   `import "dotenv/config"` no topo de todo entrypoint.
 
-## Prioridade dos agentes
+## Agentes
 
-MVP: Privacidade, Permissões, Orquestrador. Stretch: Guidelines (busca web), depois
-Acessibilidade. Não investir em stretch antes do MVP fechar com números no `CHANGELOG.md`.
+Entregues: Privacidade, Permissões, Orquestrador (com 1 chamada de IA). `agents/guidelines-agent.ts`
+e `agents/accessibility-agent.ts` são esqueletos que retornam vazio — não entram no pipeline, não
+têm flag. Ver `## Notas por iteração` → "### 3 — Guidelines (não executado)" no `CHANGELOG.md`.
 
 ## Convenções do projeto
 

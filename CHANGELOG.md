@@ -8,7 +8,7 @@ Cada iteração roda contra os mesmos repositórios de `evaluation/test-repos.js
 | 0 | Baseline | 1 prompt único: "revise esse código de app mobile e aponte problemas de conformidade" (`gpt-4.1-mini`) | referência | **5/9** | 0.33 (8/12 FP) | 44s (6 repos) | ~US$ 0,03 (77k tokens) |
 | 1 | Privacidade + Permissões | separa em dois agentes especializados | recall sobe; pode surgir falso positivo por falta de contexto cruzado | n/d | n/d | ~55s (6 repos) | ~20k tokens |
 | 2 | + Orquestrador | dedupe determinístico + 1 chamada de IA para severidade/conflito | precisão sobe | **6/9** | 1.00 (0/11 FP) | ~1 min (6 repos) | ~23k tokens |
-| 3 | + Guidelines (busca web) | agente com `web_search` checando as App Store Review Guidelines vigentes | pega mudança recente de política que um prompt estático perderia | `[preencher]` | `[preencher]` | `[preencher]` | `[preencher]` |
+| 3 | + Guidelines (busca web) — **não executado** | agente com `web_search` checando as App Store Review Guidelines vigentes | pega mudança recente de política que um prompt estático perderia | — | — | — | — |
 
 ## Notas de avaliação
 
@@ -48,8 +48,29 @@ mesma lista, sem vantagem — e mesmo assim deu 0.33, porque 8 dos seus 12 block
 
 ## Experimentos removidos
 
-- `[preencher]` — ex.: fundir Privacidade + Permissões num único prompt / few-shot de exemplos
-  problemáticos. Registrar o que foi testado e por que não entrou.
+- **Coletor de contexto por varredura de extensão → varredura por símbolos de required-reason
+  API.** A primeira versão dos agentes montava o contexto pegando arquivos por extensão e
+  ranqueando por densidade de "sinais", com um teto de ~40 arquivos. No monorepo do
+  `firebase-ios-sdk` isso falhava em silêncio: o corte alfabético dos 40 nunca chegava em
+  `FirebaseSessions/Sources/Settings/SettingsCacheClient.swift`, o alvo do caso #4. Substituído
+  por `lib/scan.ts` — varredura linha a linha por símbolos concretos (`UserDefaults`,
+  `.creationDate`, `NSPrivacyAccessedAPICategory*`, chaves `NS*UsageDescription`), numa passada
+  só, com o manifesto ancestral resolvido por caminho. Introduzido na iteração 1 (`7077e35`).
+  Não fechou o #4 (é caso duro), mas parou de perder o alvo por corte de orçamento.
+
+- **Scoring por repositório → por caso.** O primeiro scorer determinístico media recall por
+  repositório (HIT se qualquer achado do repo casava). Deu empate 4/6 entre baseline e pipeline
+  — o que escondia a diferença real: o baseline *acha* os problemas no texto, mas de forma vaga,
+  e um repo pode carregar problemas independentes (o #2 tem três). Substituído por scoring por
+  **caso** (9 casos), que separa baseline 5/9 de pipeline 6/9. `git show 685381a` (por repo) e
+  `3def319` (por caso) — o critério anterior continua reproduzível.
+
+- **Injeção sintética de um 10º caso — considerada e descartada.** O brief sugere "dez ou mais
+  casos". Um 10º caso por patch sintético num dos repos não seria pontuável contra os
+  `baseline.json`/`solution.json` já commitados: os agentes rodaram *antes* do patch, então
+  nenhum achado existente reflete a condição injetada → MISS/MISS mecânico. A alternativa —
+  re-executar a avaliação — mexeria no harness a poucas horas do prazo, com risco de invalidar
+  números já medidos e commitados. Ficou em 9 casos verificados; "boa meta" não é requisito.
 
 ## Notas por iteração
 
@@ -199,5 +220,18 @@ Wootric foi absorvido. O #4 e os dois casos do #5 continuam abertos porque depen
 agente de Privacidade mostra ao modelo (corte alfabético em 40 usos), não do Orquestrador. Fica
 para a próxima iteração.
 
-### 3 — Guidelines
-`[preencher]`
+### 3 — Guidelines (não executado)
+
+Planejado: um 4º agente que, na chamada, liga a tool de busca web da Responses API e confere a
+versão vigente das App Store Review Guidelines antes de decidir. Seria o único agente a
+demonstrar uma ferramenta em tempo real.
+
+**Não foi executado, por decisão com o tempo restante conhecido.** Priorizado abaixo do scorer
+determinístico e do relatório HTML porque **não moveria o recall nos 9 casos do dataset** — os
+casos são todos privacidade/permissões (manifesto ausente, required-reason API, permissão
+fantasma), nenhum depende de uma mudança recente de guideline. O Guidelines seria demonstração
+de *capacidade* (usar busca web num agente), não de *resultado* mensurável nesta avaliação. Com
+poucas horas até o prazo, o tempo rendeu mais no scorer (que fecha o entregável de melhoria
+mensurada) e no HTML (20 pts declarados de qualidade ponta a ponta).
+
+O esqueleto (`agents/guidelines-agent.ts`) fica no repo como registro da arquitetura prevista.

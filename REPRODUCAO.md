@@ -44,7 +44,7 @@ Roda o pipeline completo contra cada repo e grava `evaluation/out/solution.json`
 Para auditar um app avulso fora do dataset:
 
 ```bash
-npm run audit -- --repo ./caminho/do/app --guidelines
+npm run audit -- --repo ./caminho/do/app
 ```
 
 ## 5. Comparar
