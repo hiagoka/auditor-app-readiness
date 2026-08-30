@@ -35,12 +35,23 @@ export interface AgentResult {
   inspected: string[];
 }
 
+export interface OrchestrationTrace {
+  /** true quando a chamada de IA rodou e foi aplicada; false = só o merge determinístico. */
+  aiApplied: boolean;
+  /** notas de agrupamento/severidade, uma por decisão — para a trajetória. */
+  rationale: string[];
+  tokensUsed: number;
+  rawModelResponse?: unknown;
+  error?: string;
+}
+
 export interface AuditReport {
   repoPath: string;
   generatedAt: string;
   summary: Record<Severity, number>;
   findings: Finding[];
   agentResults: AgentResult[];
+  orchestration: OrchestrationTrace;
 }
 
 export function makeFindingId(f: Pick<Finding, "agent" | "file" | "line" | "title">): string {

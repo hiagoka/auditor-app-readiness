@@ -7,7 +7,7 @@ Cada iteração roda contra os mesmos repositórios de `evaluation/test-repos.js
 |---|---|---|---|---|---|---|---|
 | 0 | Baseline | 1 prompt único: "revise esse código de app mobile e aponte problemas de conformidade" (`gpt-4.1-mini`) | referência | **3/6** | a medir | a medir | ~US$ 0,03 (77k tokens) |
 | 1 | Privacidade + Permissões | separa em dois agentes especializados | recall sobe; pode surgir falso positivo por falta de contexto cruzado | **4/6** | a medir | ~55s (6 repos) | ~20k tokens |
-| 2 | + Orquestrador | dedupe determinístico + 1 chamada de IA para severidade/conflito | precisão sobe | `[preencher]` | `[preencher]` | `[preencher]` | `[preencher]` |
+| 2 | + Orquestrador | dedupe determinístico + 1 chamada de IA para severidade/conflito | precisão sobe | **4/6** | a medir | ~1 min (6 repos) | ~23k tokens |
 | 3 | + Guidelines (busca web) | agente com `web_search` checando as App Store Review Guidelines vigentes | pega mudança recente de política que um prompt estático perderia | `[preencher]` | `[preencher]` | `[preencher]` | `[preencher]` |
 
 ## Experimentos removidos
@@ -105,7 +105,42 @@ que se mostra ao modelo (hoje o agente de Privacidade corta a lista de usos em 4
 ordem alfabética) e/ou do contexto do PR. Fica para a iteração 2, junto com a chamada de IA do Orquestrador.
 
 ### 2 — Orquestrador
-`[preencher]`
+
+Modelo ainda `gpt-4.1-mini`. O Orquestrador deixou de ser 100% determinístico. O fluxo agora é:
+dedupe determinístico por `id` (sempre) + **1 chamada de IA**. A IA **planeja** — agrupa
+achados que são o mesmo problema de raiz, define a severidade do grupo (a mais alta entre os
+membros, salvo justificativa registrada) e ordena por prioridade de rejeição. O **código**
+aplica o plano. A IA não cria achado nem altera `file`/`line`/`evidence`/`title`. Se a chamada
+falhar, cai no merge determinístico. A IA só entra quando há ≥2 achados deduplicados — por isso
+o #5 `shoutkit` (1 achado) rodou com `aiApplied=false`.
+
+**Achados totais: 16 → 11 (−31%), sem perder nenhum HIT de ground truth.** Agrupamentos
+concretos (registrados em `orchestration.rationale` por repo, na trajetória):
+
+- **#3 `Wootric`:** o blocker `PrivacyInfo.xcprivacy ausente` absorveu os 2 recomendados
+  "`UserDefaults` cru em vez do wrapper do projeto" — que tinham framing errado, já que o
+  Wootric não tem wrapper. 4 achados → 2.
+- **#1, #2, #6:** "descrição vazia" + "declarada mas não usada" da mesma chave
+  `NSLocationWhenInUseUsageDescription` viraram 1 achado. O aspecto de permissão não usada fica
+  no `detail`, então o achado ainda casa com o ground truth.
+- **#4 `firebase`:** o blocker de privacidade absorveu o recomendado de wrapper.
+
+**Recall: inalterado, 4/6** (#1, #2, #3, #6 HIT; #5 parcial; #4 miss). O Orquestrador não
+recupera recall — só enxerga o que os agentes produziram.
+
+**Custo: ~20k → ~23k tokens** (o Orquestrador adiciona ~700–900 tok/repo, ~3,9k no total);
+ainda ~3,3x mais barato que o baseline (77k). **Tempo:** ~1 min nos 6 repos (soma das durações
+dos agentes no `solution.json` = 52,5 s; o overhead do Orquestrador não foi cronometrado).
+**Precisão:** ainda a medir — o scorer determinístico não rodou.
+
+O `solution.json` passou a incluir a resposta crua do Orquestrador por repo (arquivo cresceu
+para ~85K).
+
+**Decisão: MANTIDO.** É o "precisão sobe" que a linha da tabela previa: corte de 31% em achados
+redundantes, zero perda de recall, e de quebra o framing errado de "wrapper" no Wootric foi
+corrigido. O recall segue 4/6 — #4 e #5 continuam abertos porque dependem do que o agente de
+Privacidade mostra ao modelo (corte alfabético em 40 usos), não do Orquestrador. Fica para a
+próxima iteração.
 
 ### 3 — Guidelines
 `[preencher]`
