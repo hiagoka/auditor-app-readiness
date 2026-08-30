@@ -68,10 +68,18 @@ function sev(s?: string): Severity {
   return s === "blocker" || s === "recomendado" || s === "opcional" ? s : "recomendado";
 }
 
-export async function runPrivacyAgent(input: PrivacyAgentInput): Promise<AgentResult> {
-  const start = Date.now();
-  const { repoPath } = input;
+export interface AgentDigest {
+  system: string;
+  user: string;
+  inspected: string[];
+}
 
+/**
+ * Monta exatamente o que o agente de Privacidade envia ao modelo (system + user) e o que ele
+ * varreu (`inspected`). Só usa `lib/scan.ts` — determinístico, sem IA. Exportado para que
+ * `scripts/gen-trajectories.ts` possa reconstruir o digest, que não é persistido no solution.json.
+ */
+export function buildPrivacyDigest(repoPath: string): AgentDigest {
   const manifests = shippedManifests(repoPath);
   const code = shippedCodeFiles(repoPath);
   const declared = declaredPrivacyCategories(repoPath, manifests);
@@ -155,10 +163,18 @@ ${rowsBlock}
 Candidatos a troca por wrapper (UserDefaults cru, wrapper existe no repo):
 ${wrapperBlock}`;
 
-  const { data, tokensUsed, raw } = await askJson<{ findings: RawFinding[] }>({
+  return {
     system: SYSTEM,
     user,
-  });
+    inspected: [...manifests, ...[...new Set(uncoveredShown.map((r) => r.file))].slice(0, 40)],
+  };
+}
+
+export async function runPrivacyAgent(input: PrivacyAgentInput): Promise<AgentResult> {
+  const start = Date.now();
+  const { system, user, inspected } = buildPrivacyDigest(input.repoPath);
+
+  const { data, tokensUsed, raw } = await askJson<{ findings: RawFinding[] }>({ system, user });
 
   const rawFindings = Array.isArray(data.findings) ? data.findings : [];
   const findings: Finding[] = rawFindings.map((rf) => {
@@ -185,9 +201,6 @@ ${wrapperBlock}`;
     rawModelResponse: raw,
     tokensUsed,
     durationMs: Date.now() - start,
-    inspected: [
-      ...manifests,
-      ...[...new Set(uncoveredShown.map((r) => r.file))].slice(0, 40),
-    ],
+    inspected,
   };
 }

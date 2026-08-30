@@ -13,6 +13,7 @@
     "eval": "tsx evaluation/run-solution.ts",
     "clone-repos": "bash scripts/clone-test-repos.sh",
     "fill-results": "tsx scripts/fill-results.ts",
+    "gen-trajectories": "tsx scripts/gen-trajectories.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

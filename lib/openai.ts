@@ -4,7 +4,10 @@ const apiKey = process.env.OPENAI_API_KEY;
 
 export const MODEL = process.env.OPENAI_MODEL ?? "gpt-4.1-mini";
 
-export const openai = new OpenAI({ apiKey });
+// Fallback só para não estourar na construção quando o módulo é importado sem chave (ex.:
+// scripts/gen-trajectories.ts, que usa só a coleta). `assertApiKey()` é a barreira real antes
+// de qualquer chamada.
+export const openai = new OpenAI({ apiKey: apiKey || "unset" });
 
 export function assertApiKey(): void {
   if (!apiKey) {

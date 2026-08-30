@@ -57,10 +57,18 @@ function sev(s?: string): Severity {
   return s === "blocker" || s === "recomendado" || s === "opcional" ? s : "recomendado";
 }
 
-export async function runPermissionsAgent(input: PermissionsAgentInput): Promise<AgentResult> {
-  const start = Date.now();
-  const { repoPath } = input;
+export interface AgentDigest {
+  system: string;
+  user: string;
+  inspected: string[];
+}
 
+/**
+ * Monta exatamente o que o agente de Permissões envia ao modelo (system + user) e o que ele
+ * varreu (`inspected`). Só usa `lib/scan.ts` — determinístico, sem IA. Exportado para que
+ * `scripts/gen-trajectories.ts` possa reconstruir o digest, que não é persistido no solution.json.
+ */
+export function buildPermissionsDigest(repoPath: string): AgentDigest {
   const plists = infoPlists(repoPath);
   const declared = declaredPermissions(repoPath, plists);
   const code = codeFiles(repoPath);
@@ -113,10 +121,21 @@ ${declaredBlock}
 Uso por família de permissão:
 ${usageBlock || "  (nenhuma família relevante)"}`;
 
-  const { data, tokensUsed, raw } = await askJson<{ findings: RawFinding[] }>({
+  return {
     system: SYSTEM,
     user,
-  });
+    inspected: [
+      ...plists,
+      ...[...new Set(families.flatMap((f) => f.hits.map((h) => h.file)))].slice(0, 30),
+    ],
+  };
+}
+
+export async function runPermissionsAgent(input: PermissionsAgentInput): Promise<AgentResult> {
+  const start = Date.now();
+  const { system, user, inspected } = buildPermissionsDigest(input.repoPath);
+
+  const { data, tokensUsed, raw } = await askJson<{ findings: RawFinding[] }>({ system, user });
 
   const rawFindings = Array.isArray(data.findings) ? data.findings : [];
   const findings: Finding[] = rawFindings.map((rf) => {
@@ -143,6 +162,6 @@ ${usageBlock || "  (nenhuma família relevante)"}`;
     rawModelResponse: raw,
     tokensUsed,
     durationMs: Date.now() - start,
-    inspected: [...plists, ...[...new Set(families.flatMap((f) => f.hits.map((h) => h.file)))].slice(0, 30)],
+    inspected,
   };
 }
