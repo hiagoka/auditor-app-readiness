@@ -2,6 +2,63 @@
 
 *Hackathon de Workflows Agênticos — micro1*
 
+---
+
+## In English (summary)
+
+**What it is.** A command-line tool that audits a React Native / iOS project **before** App Store
+submission, using specialized AI agents to catch the most common rejection reasons — **privacy
+and permissions**. Output: a prioritized report (`resultado.json` + a Lighthouse-style
+`relatorio.html`). It is **advisory** — it flags, a human decides whether to submit. It never
+approves or rejects a submission.
+
+**The problem / the user.** A solo mobile dev (the author, working on *Prepara+*, an ENEM-study
+app). The App Store rejections that cost the most time are not bugs — they are *missing
+declarations*: an SDK collecting data without a Privacy Manifest entry, a permission declared and
+never used, a "required reason" API called without a declared reason. `eslint` catches none of
+this.
+
+**Why agents, not one prompt.** A single prompt mixes reading types: *"is it declared?"* (read
+manifests) vs *"does that declaration cover this specific use / bundle?"* (read source). Measured
+result: the pipeline does **not find more** — it produces the same findings **with far less
+noise, at 1/3 of the cost**.
+
+**Results** (deterministic scorer, 9 test cases across 6 real repos, `gpt-4.1-mini`):
+
+| Metric | Baseline (1 prompt) | Pipeline (2 agents + orchestrator) |
+|---|---|---|
+| Recall (cases) | 5/9 | **6/9** |
+| Precision (blockers) | 0.33 — 8 of 12 are false positives | **1.00** — 0 of 11 |
+| Cost | 77k tokens | **23k tokens** (≈3.3× cheaper) |
+
+Baseline finds the right problems but wraps them in noise: hallucinated file paths, "manifest
+missing" without naming a file, blockers that are actually fine. The pipeline's win is precision
+and cost, not recall.
+
+**Run it.**
+
+```bash
+npm install
+cp .env.example .env        # fill OPENAI_API_KEY  (OPENAI_MODEL defaults to gpt-4.1-mini)
+npm run audit -- --repo ./path/to/app     # -> output/resultado.json + output/relatorio.html
+```
+
+Reproduce the evaluation: `npm run clone-repos` → `npm run baseline` → `npm run eval` →
+`npm run fill-results` (deterministic, no AI). Details in `REPRODUCAO.md`.
+
+**Documents.** `CHANGELOG.md` — iteration-by-iteration story (baseline → +agents → +orchestrator)
+with the measured evidence and a "removed experiments" section. `REPRODUCAO.md` — reproduction
+guide. `TRAJETORIAS.md` — deliverable 4, one end-to-end agent trajectory plus a human-checkpoints
+section (corrections went both ways). `evaluation/results.md` — the scorer's per-case output.
+
+**On language.** The git history and commit messages are in English; the code identifiers are
+English. The prose documents and the tool's own findings ("Permissão NSLocation… com descrição
+vazia") are in Portuguese — the declared user is a Brazilian solo dev, and the agent prompts (so
+the findings) are Portuguese. A tool that speaks its target user's language is a product choice,
+stated here on purpose.
+
+---
+
 Ferramenta de linha de comando que audita um projeto React Native/iOS **antes** do envio para a
 App Store, usando agentes de IA especializados para detectar os motivos mais comuns de rejeição —
 **privacidade e permissões** — e devolve um relatório priorizado (JSON + HTML) com o que corrigir.
