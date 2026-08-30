@@ -5,10 +5,36 @@ Cada iteração roda contra os mesmos repositórios de `evaluation/test-repos.js
 
 | # | Iteração | Mudança | Hipótese | Recall | Precisão | Tempo | Custo |
 |---|---|---|---|---|---|---|---|
-| 0 | Baseline | 1 prompt único: "revise esse código de app mobile e aponte problemas de conformidade" (`gpt-4.1-mini`) | referência | **3/6** | a medir | a medir | ~US$ 0,03 (77k tokens) |
-| 1 | Privacidade + Permissões | separa em dois agentes especializados | recall sobe; pode surgir falso positivo por falta de contexto cruzado | **4/6** | a medir | ~55s (6 repos) | ~20k tokens |
-| 2 | + Orquestrador | dedupe determinístico + 1 chamada de IA para severidade/conflito | precisão sobe | **4/6** | a medir | ~1 min (6 repos) | ~23k tokens |
+| 0 | Baseline | 1 prompt único: "revise esse código de app mobile e aponte problemas de conformidade" (`gpt-4.1-mini`) | referência | **4/6**¹ | 0.33 (8/12 FP) | 44s (6 repos) | ~US$ 0,03 (77k tokens) |
+| 1 | Privacidade + Permissões | separa em dois agentes especializados | recall sobe; pode surgir falso positivo por falta de contexto cruzado | **4/6** | n/d² | ~55s (6 repos) | ~20k tokens |
+| 2 | + Orquestrador | dedupe determinístico + 1 chamada de IA para severidade/conflito | precisão sobe | **4/6** | 1.00 (0/11 FP) | ~1 min (6 repos) | ~23k tokens |
 | 3 | + Guidelines (busca web) | agente com `web_search` checando as App Store Review Guidelines vigentes | pega mudança recente de política que um prompt estático perderia | `[preencher]` | `[preencher]` | `[preencher]` | `[preencher]` |
+
+## Notas de avaliação
+
+Recall e precisão vêm do scorer determinístico versionado (`scripts/fill-results.ts`), rodado
+contra `evaluation/out/baseline.json` + `evaluation/out/solution.json`. Critério de match em
+`evaluation/results.md`.
+
+**¹ Correção (2026-08-30).** A linha do Baseline mudou de Recall 3/6 para 4/6. O 3/6 era uma
+avaliação manual mais rígida — contava como miss um achado com `file: null` mesmo quando o
+`detail` nomeava o arquivo certo (caso do #3 Wootric). O 4/6 vem do scorer determinístico
+versionado, pelo critério de match documentado em `evaluation/results.md`: o texto de
+`detail`/`evidence` conta para o match de arquivo. Sob esse critério o baseline acerta
+#1/#2/#3/#6 e erra #4/#5 — o mesmo conjunto da solução. **O recall, medido assim, é 4/6 no
+baseline e 4/6 no pipeline final: não muda.** A melhoria medível está na precisão e no custo.
+
+**² Precisão da iteração 1 não medida:** o JSON daquela execução foi sobrescrito pelo da
+iteração 2. O scorer só mede o baseline e o pipeline atual (= iteração 2).
+
+**Sobre a precisão 1.00.** A precisão é medida contra `groundTruth` + `accepted_extra_findings`
+(campo em `test-repos.json`). A lista de aceitos foi curada manualmente **depois** de observar
+as saídas dos agentes — tem circularidade estrutural: por construção não daria menos que 1.00 a
+não ser por decisão do curador. Cada um dos 11 blockers da solução foi verificado
+individualmente (aponta arquivo real, descreve problema real). **1.00 aqui significa "nenhum
+achado indefensável", não "testado contra achados inéditos".** O baseline foi pontuado contra a
+mesma lista, sem vantagem — e mesmo assim deu 0.33, porque 8 dos seus 12 blockers são vagos
+(sem arquivo), alucinados (`file` apontando código que não existe assim) ou fora do escopo.
 
 ## Experimentos removidos
 
@@ -20,28 +46,29 @@ Cada iteração roda contra os mesmos repositórios de `evaluation/test-repos.js
 ### 0 — Baseline
 
 Modelo `gpt-4.1-mini` (trocado de `gpt-4.1` por limite de TPM da conta). Os 6 repositórios
-rodaram (6/6), 77k tokens no total (~US$ 0,03). Precisão e tempo ainda não medidos — ficam para
-`npm run fill-results`. Recall 3/6 — e o dado que importa para o argumento do projeto é que os
-3 erros **não são do mesmo tipo**:
+rodaram (6/6), 77k tokens no total (~US$ 0,03), 44 s. **Recall 4/6** (scorer determinístico):
+acerta #1/#2/#3/#6, erra #4/#5. **Precisão 0.33** — 8 dos 12 blockers são falso positivo.
 
-- **Acerto limpo (3/6):** `auth0/react-native-auth0`, `rnmapbox/maps` e
-  `react-native-image-picker` — todos casos de manifesto de privacidade obviamente ausente,
-  achados corretamente.
-- **Erro conceitual — `firebase/firebase-ios-sdk`:** o repositório já tem vários
-  `PrivacyInfo.xcprivacy` (de outros módulos). O modelo não distinguiu "existe manifesto em
-  algum lugar do repo" de "este uso específico de `UserDefaults` em `SettingsCacheClient.swift`
-  está coberto por um manifesto". Não entendeu que a correção real troca o `UserDefaults` puro
-  pelo wrapper `GULUserDefaults`.
-- **Erro de escopo — `cascadiacollections/shoutkit`:** apontou o manifesto do app iOS principal
-  e não percebeu que watchOS e tvOS são bundles separados, cada um precisando do próprio
+O baseline *acha* os problemas de #1/#2/#3/#6 — mas com ruído, e é isso que o pipeline conserta:
+
+- **#1 `auth0`, #2 `react-native-image-picker`, #6 `rnmapbox/maps` — HIT com imprecisão.**
+  Aponta "manifesto de privacidade ausente" e o motivo certo, mas metade das vezes sem citar
+  arquivo, com número de linha errado (offset de caractere `5790` no #2; linha 70 em vez de 120
+  no #6), e junto de blockers alucinados: no #1 inventou uso de `UserDefaults`/timestamps em
+  `ios/NativeBridge.swift` (2 blockers); no #2 afirmou que `NSCamera`/`NSPhotoLibrary` faltavam
+  no `Info.plist`, e as chaves estão lá.
+- **#3 `Wootric/WootricSDK-iOS` — HIT frágil.** Acertou o diagnóstico inteiro no texto
+  (`WTRDefaults.m` usa `NSUserDefaults`, motivo `CA92.1`, sem `.xcprivacy` no repo), mas o campo
+  estruturado `file` ficou vazio e só um dos dois arquivos do ground truth foi citado. Conta
+  como HIT pelo critério documentado (o texto nomeia o arquivo); a fragilidade está no contrato
+  estruturado, não no raciocínio.
+- **#4 `firebase/firebase-ios-sdk` — MISS.** O repo já tem vários `PrivacyInfo.xcprivacy` de
+  outros módulos. O modelo não distinguiu "existe manifesto em algum lugar" de "este uso de
+  `UserDefaults` em `SettingsCacheClient.swift` está coberto", nem viu que a correção real troca
+  o `UserDefaults` puro pelo wrapper `GULUserDefaults`.
+- **#5 `cascadiacollections/shoutkit` — MISS.** Apontou o manifesto do app iOS principal e não
+  percebeu que watchOS e tvOS são bundles separados, cada um precisando do próprio
   `PrivacyInfo.xcprivacy`.
-- **Erro de formato, não de raciocínio — `Wootric/WootricSDK-iOS`:** o modelo acertou o
-  diagnóstico inteiro — categoria `NSPrivacyAccessedAPICategoryUserDefaults`, motivo `CA92.1`,
-  "nenhum `.xcprivacy` no repo" — mas o campo estruturado `file` ficou vazio (o caminho só
-  aparece solto no texto de `detail`), citou apenas `WTRDefaults.m` e ignorou `WTRApiClient.m`
-  (o ground truth lista os dois), e sem número de linha. Pelo critério estrito de
-  `evaluation/results.md` conta como miss, mas é uma falha diferente das outras duas: aqui o
-  modelo "sabia a resposta" e não a entregou no contrato estruturado.
 
 Achado fora do alvo (ruído de escopo, não alucinação): no Wootric o baseline também sinalizou
 `NSAllowsArbitraryLoads` no `Info.plist` do app de **demo** (`WootricSDK-Demo`) — observação
@@ -62,29 +89,33 @@ Orquestrador continua 100% determinístico nesta iteração (dedupe + ordenaçã
 chamada de IA dele fica para a iteração 2. Também foi corrigido o marcador de truncação do
 bundle em `lib/collect.ts`: o trecho recortado agora carrega número de linha real.
 
-**Recall: 3/6 → 4/6.** HITs:
+**Recall: 4/6 → 4/6 — não muda.** Pelo scorer determinístico o baseline já acertava #1/#2/#3/#6
+no texto dos achados. O que a separação em agentes mudou é *como* esses 4 são entregues:
 
-- **#1 `auth0/react-native-auth0`** — `PrivacyInfo.xcprivacy` ausente.
+- **#1 `auth0/react-native-auth0`** — `PrivacyInfo.xcprivacy` ausente (mesmo achado, agora sem os
+  blockers alucinados que o baseline juntava).
 - **#2 `react-native-image-picker`** — os dois eixos numa execução: privacidade
-  (`creationDate` / motivo 3B52.1 em `ImagePickerManager.mm`) e permissões (fantasma
-  `NSLocationWhenInUseUsageDescription`).
-- **#3 `Wootric/WootricSDK-iOS`** — `WTRApiClient.m:529` e `WTRDefaults.m:33`, motivo `CA92.1`.
-- **#6 `rnmapbox/maps`** — `RNMBXModule.swift:120`, motivo `CA92.1`.
+  (`creationDate` / motivo 3B52.1 em `ImagePickerManager.mm:208` — linha real) e permissões
+  (fantasma `NSLocationWhenInUseUsageDescription`).
+- **#3 `Wootric/WootricSDK-iOS`** — `WTRApiClient.m:529` **e** `WTRDefaults.m:33` (o baseline só
+  citou um), motivo `CA92.1`, no campo estruturado.
+- **#6 `rnmapbox/maps`** — `RNMBXModule.swift:120` (o baseline errou para 70), motivo `CA92.1`.
 
-Casos que ainda não fecham:
+Continuam MISS, para todo mundo:
 
-- **#5 `cascadiacollections/shoutkit` — PARCIAL.** Acha a classe certa de problema (código com
+- **#5 `cascadiacollections/shoutkit`.** Acha a classe certa de problema (código com
   required-reason API sem manifest aplicável), mas nomeia `Packages/FeatureFlags` em vez dos
-  targets watchOS/tvOS que o ground truth aponta.
-- **#4 `firebase/firebase-ios-sdk` — MISS.** Acha 1 gap real de manifesto
-  (`FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95`), mais 1 achado de wrapper e 1 de permissão
-  de fotos não declarada — nenhum é o `SettingsCacheClient.swift` do PR de referência.
+  targets watchOS/tvOS do ground truth — não casa pelo scorer.
+- **#4 `firebase/firebase-ios-sdk`.** Acha 1 gap real de manifesto
+  (`FirebaseAppCheck/Sources/Core/FIRAppCheck.m:95`) + 1 achado de wrapper + 1 de permissão de
+  fotos não declarada — nenhum é o `SettingsCacheClient.swift` do PR de referência.
 
-**Custo: 77k → ~20k tokens no total (4x mais barato).** **Tempo:** ~5–9 s por repo, `firebase`
-~18 s, ~55 s nos 6. **Precisão:** ainda não medida pelo scorer determinístico — a medir.
+**Custo: 77k → ~20k tokens no total (~4x mais barato).** **Tempo:** ~5–9 s por repo, `firebase`
+~18 s. **Precisão:** não medida nesta iteração (JSON sobrescrito pelo da iteração 2) — o scorer
+mede baseline 0.33 e pipeline final 1.00.
 
-`file:line`: no baseline eram alucinados (ex.: `NativeBridge.swift:40`, a partir de um offset
-de caractere 5790); na iteração 1 são todos reais.
+`file:line`: no baseline eram alucinados (ex.: `NativeBridge.swift:40`, e um offset de caractere
+`5790` reportado como linha); na iteração 1 são todos reais.
 
 Novidade do agente de Permissões, que o baseline não fazia:
 
@@ -98,11 +129,13 @@ são plausivelmente reais — incompletude do ground truth, não alucinação. P
 ferramenta (auditar o próprio app antes do envio) esse é justamente o tipo de achado que se
 quer.
 
-**Decisão: MANTIDO.** Separar as duas leituras subiu o recall (3 → 4/6) e cortou o custo 4x. O
-#4 segue como o caso duro: o manifesto existe e está quase certo, mas um arquivo bypassa o
-wrapper `GULUserDefaults` — a especialização sozinha não resolve. Precisa de ranqueamento do
-que se mostra ao modelo (hoje o agente de Privacidade corta a lista de usos em 40 arquivos por
-ordem alfabética) e/ou do contexto do PR. Fica para a iteração 2, junto com a chamada de IA do Orquestrador.
+**Decisão: MANTIDO.** O recall bruto não mudou (4/6 nos dois pelo scorer), mas a separação
+trocou achados vagos/alucinados por achados com `file:line` real e cortou o custo ~4x — é o que
+a precisão vai medir na iteração 2. O #4 segue como o caso duro: o manifesto existe e está
+quase certo, mas um arquivo bypassa o wrapper `GULUserDefaults` — a especialização sozinha não
+resolve. Precisa de ranqueamento do que se mostra ao modelo (hoje o agente de Privacidade corta
+a lista de usos em 40 arquivos por ordem alfabética) e/ou do contexto do PR. Fica para a
+iteração 2, junto com a chamada de IA do Orquestrador.
 
 ### 2 — Orquestrador
 
@@ -125,22 +158,29 @@ concretos (registrados em `orchestration.rationale` por repo, na trajetória):
   no `detail`, então o achado ainda casa com o ground truth.
 - **#4 `firebase`:** o blocker de privacidade absorveu o recomendado de wrapper.
 
-**Recall: inalterado, 4/6** (#1, #2, #3, #6 HIT; #5 parcial; #4 miss). O Orquestrador não
-recupera recall — só enxerga o que os agentes produziram.
+**Recall: inalterado, 4/6** (#1, #2, #3, #6 HIT; #4 e #5 MISS). O Orquestrador não recupera
+recall — só enxerga o que os agentes produziram.
+
+**Precisão: 0.33 → 1.00** (scorer determinístico, medido no baseline e neste pipeline). O
+baseline tem 8 falso positivo em 12 blockers — 2 inventando uso em `ios/NativeBridge.swift` (#1),
+"manifesto ausente" sem citar arquivo (#2, #6), `NSCamera`/`NSPhoto` "ausentes" que na verdade
+existem (#2), 3 blockers sobre manifestos de módulos do firebase fora do escopo (#4). O pipeline
+tem 0 em 11 — todos os blockers apontam arquivo real e descrevem problema real. **Ler antes o
+bloco "Sobre a precisão 1.00" em `## Notas de avaliação`: a lista de aceitos que sustenta esse
+1.00 é curada à mão a partir das saídas observadas.**
 
 **Custo: ~20k → ~23k tokens** (o Orquestrador adiciona ~700–900 tok/repo, ~3,9k no total);
-ainda ~3,3x mais barato que o baseline (77k). **Tempo:** ~1 min nos 6 repos (soma das durações
-dos agentes no `solution.json` = 52,5 s; o overhead do Orquestrador não foi cronometrado).
-**Precisão:** ainda a medir — o scorer determinístico não rodou.
+ainda ~3,3x mais barato que o baseline (77k). **Tempo:** ~53 s nos 6 repos (soma das durações
+dos agentes no `solution.json`; o overhead do Orquestrador não foi cronometrado).
 
 O `solution.json` passou a incluir a resposta crua do Orquestrador por repo (arquivo cresceu
 para ~85K).
 
-**Decisão: MANTIDO.** É o "precisão sobe" que a linha da tabela previa: corte de 31% em achados
-redundantes, zero perda de recall, e de quebra o framing errado de "wrapper" no Wootric foi
-corrigido. O recall segue 4/6 — #4 e #5 continuam abertos porque dependem do que o agente de
-Privacidade mostra ao modelo (corte alfabético em 40 usos), não do Orquestrador. Fica para a
-próxima iteração.
+**Decisão: MANTIDO.** É o "precisão sobe" que a linha da tabela previa: 0.33 → 1.00, corte de
+31% em achados redundantes, zero perda de recall, e de quebra o framing errado de "wrapper" no
+Wootric foi absorvido. O recall segue 4/6 — #4 e #5 continuam abertos porque dependem do que o
+agente de Privacidade mostra ao modelo (corte alfabético em 40 usos), não do Orquestrador. Fica
+para a próxima iteração.
 
 ### 3 — Guidelines
 `[preencher]`
