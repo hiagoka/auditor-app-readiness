@@ -74,11 +74,17 @@ Tabela **derivada de `evaluation/test-repos.json`** (fonte da verdade). Ao mexer
 atualizar aqui junto — os fatos (arquivo, linha, motivo, categoria) têm que bater com o
 `groundTruth` correspondente. (TODO: gerar esta tabela do JSON em vez de manter à mão.)
 
-| # | Repositório | Dificuldade | Caso negativo | Problema (ground truth) |
-|---|---|---|---|---|
-| 1 | `auth0/react-native-auth0` | baixa | não | `ios/PrivacyInfo.xcprivacy` ausente na lib A0Auth0; falta `NSPrivacyCollectedDataTypeUserID` |
-| 2 | `react-native-image-picker/react-native-image-picker` | média | não | `phAsset.creationDate` em `ios/ImagePickerManager.mm` (linhas 208/311) sem `NSPrivacyAccessedAPICategoryFileTimestamp` (motivo `3B52.1`). Além disso: `NSLocationWhenInUseUsageDescription` fantasma em `example/ios/example/Info.plist` |
-| 3 | `Wootric/WootricSDK-iOS` | média | não | `[NSUserDefaults standardUserDefaults]` em `WootricSDK/WootricSDK/WTRApiClient.m` e `WTRDefaults.m` sem `NSPrivacyAccessedAPICategoryUserDefaults` (`CA92.1`) |
-| 4 | `firebase/firebase-ios-sdk` | alta | não | `FirebaseSessions/Sources/Settings/SettingsCacheClient.swift:51` usa `UserDefaults` puro em vez do wrapper `GULUserDefaults`, sem required-reason declarado |
-| 5 | `cascadiacollections/shoutkit` | baixa | não | faltam `ShoutKitApp/ShoutKitWatchApp/PrivacyInfo.xcprivacy` e `ShoutKitApp/ShoutKitTVApp/PrivacyInfo.xcprivacy`; ambos os targets acessam `UserDefaults` (`NSPrivacyAccessedAPICategoryUserDefaults`) |
-| 6 | `rnmapbox/maps` | alta | **sim** | `ios/RNMBX/RNMBXModule.swift:120` chama `UserDefaults.standard` sem declaração; a lib não tem nenhum `PrivacyInfo.xcprivacy`. Sem correção aceita de referência — mede se o agente aponta o problema sem um exemplo para se guiar |
+A avaliação é pontuada por **caso**, não por repositório: são **9 casos** distribuídos nos 6
+repos (o #2 tem três, o #5 tem dois). Cada caso tem `expectativa: reportar` ou `nao-reportar`.
+`noUpstreamFix` (só o #6) = não existe commit de correção aceito upstream — a ferramenta **deve
+reportar** mesmo assim; não confundir com a armadilha `nao-reportar` do #2 (microfone), onde
+reportar é o erro.
+
+| # | Repositório | Dificuldade | `noUpstreamFix` | Casos | Problema (ground truth) |
+|---|---|---|---|---|---|
+| 1 | `auth0/react-native-auth0` | baixa | não | 1 | `ios/PrivacyInfo.xcprivacy` ausente na lib A0Auth0; falta `NSPrivacyCollectedDataTypeUserID` |
+| 2 | `react-native-image-picker/react-native-image-picker` | média | não | 3 | `phAsset.creationDate` em `ios/ImagePickerManager.mm` (linhas 208/311) sem `NSPrivacyAccessedAPICategoryFileTimestamp` (`3B52.1`); `NSLocationWhenInUseUsageDescription` fantasma em `example/ios/example/Info.plist`; **armadilha:** `NSMicrophoneUsageDescription` no mesmo plist **não** é fantasma (`nao-reportar`) |
+| 3 | `Wootric/WootricSDK-iOS` | média | não | 1 | `[NSUserDefaults standardUserDefaults]` em `WootricSDK/WootricSDK/WTRApiClient.m` e `WTRDefaults.m` sem `NSPrivacyAccessedAPICategoryUserDefaults` (`CA92.1`) |
+| 4 | `firebase/firebase-ios-sdk` | alta | não | 1 | `FirebaseSessions/Sources/Settings/SettingsCacheClient.swift:51` usa `UserDefaults` puro em vez do wrapper `GULUserDefaults`, sem required-reason declarado |
+| 5 | `cascadiacollections/shoutkit` | baixa | não | 2 | faltam `ShoutKitApp/ShoutKitWatchApp/PrivacyInfo.xcprivacy` e `ShoutKitApp/ShoutKitTVApp/PrivacyInfo.xcprivacy` (um caso cada); ambos os targets acessam `UserDefaults` (`NSPrivacyAccessedAPICategoryUserDefaults`) |
+| 6 | `rnmapbox/maps` | alta | **sim** | 1 | `ios/RNMBX/RNMBXModule.swift:120` chama `UserDefaults.standard` sem declaração; a lib não tem nenhum `PrivacyInfo.xcprivacy`. Sem correção de referência — mede se o agente aponta sem um exemplo para se guiar |

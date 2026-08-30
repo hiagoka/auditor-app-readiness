@@ -4,14 +4,16 @@
  *
  * Entradas:  evaluation/out/baseline.json, evaluation/out/solution.json, evaluation/test-repos.json
  *
- * Recall (por repo, binário): o repo é HIT se existe pelo menos um Finding cujo caminho (campo
- *   `file` OU um caminho extraído de title/detail/evidence) bate por sufixo com algum arquivo-
- *   alvo do ground truth, E o texto do Finding cita o motivo esperado (groundTruth.reference /
- *   groundTruth.expected) ou, para permissão fantasma, a chave em phantom_permissions[].key.
- *   Recall = HITs / 6.
+ * Recall — por CASO (`cases` em test-repos.json), não por repositório. Cada caso tem uma
+ *   `expectativa`:
+ *   - "reportar": HIT se existe um Finding cujo caminho (campo `file` OU texto de
+ *     title/detail/evidence) casa por sufixo com um `target.files`, OU cujo texto contém uma
+ *     `target.keys`, E o texto cita algum motivo em `reason`.
+ *   - "nao-reportar" (armadilha): HIT se NENHUM Finding de severidade `blocker` aponta o alvo.
+ *   Recall = casos acertados / total de casos.
  *
- * Precisão: FP = Finding de severidade "blocker" cujo caminho não bate com nenhum arquivo do
- *   ground truth NEM com `accepted_extra_findings` (lista curada à mão em test-repos.json).
+ * Precisão — agregada, sobre blockers (inalterada). FP = `blocker` cujo caminho não casa com
+ *   `groundTruth.files`, `phantom_permissions[].file` nem `accepted_extra_findings[].file`.
  *   Precisão = 1 − FP / total de blockers.
  */
 import { readFileSync, writeFileSync } from "node:fs";
@@ -37,20 +39,23 @@ interface Run {
   agentResults?: { tokensUsed?: number; durationMs?: number }[];
   orchestration?: { tokensUsed?: number };
 }
-interface PhantomPerm {
-  key: string;
-  file: string;
+interface TestCase {
+  id: string;
+  tipo: string;
+  expectativa: "reportar" | "nao-reportar";
+  target: { files?: string[]; lines?: number[]; keys?: string[] };
+  reason: string[];
+  descricao?: string;
 }
 interface TestRepo {
   id: number;
   repo: string;
+  cases?: TestCase[];
   accepted_extra_findings?: { file: string; why: string }[];
   groundTruth: {
     category?: string;
     files?: string[];
-    reference?: string;
-    expected?: string[];
-    phantom_permissions?: PhantomPerm[];
+    phantom_permissions?: { key: string; file: string }[];
   };
 }
 
@@ -66,13 +71,6 @@ function pathsIn(f: Finding): string[] {
   return [...out];
 }
 
-/**
- * Match por sufixo de segmento. `cand` (extraído do achado) casa com `gt` (arquivo do ground
- * truth) se: são iguais; `cand` é um caminho mais longo terminando em `/gt`; `cand` é um
- * sub-caminho real de `gt` (tem "/"). Um basename SOLTO (sem "/", ex.: "PrivacyInfo.xcprivacy"
- * citado em prosa) só casa quando `allowBasename` — reservado para o caso "o repo não tem
- * NENHUM manifesto" (privacy-manifest-missing com 1 alvo), onde o achado não tem caminho a citar.
- */
 function suffixMatch(cand: string, gt: string, allowBasename: boolean): boolean {
   if (cand === gt) return true;
   if (cand.endsWith(`/${gt}`)) return true;
@@ -83,54 +81,64 @@ function suffixMatch(cand: string, gt: string, allowBasename: boolean): boolean 
 
 function fileMatchesAny(f: Finding, targets: string[], allowBasename: boolean): boolean {
   const paths = pathsIn(f);
-  // basename solto ("PrivacyInfo.xcprivacy" citado em prosa) só vale quando o achado NÃO tem
-  // um `file` estruturado — senão um blocker com `file` alucinado escaparia do check só por
-  // mencionar o manifesto no texto.
+  // basename solto só vale quando o achado NÃO tem `file` estruturado — senão um blocker com
+  // `file` alucinado escaparia do check só por mencionar o manifesto no texto.
   const bare = allowBasename && !f.file;
   return targets.some((t) => paths.some((c) => suffixMatch(c, t, bare)));
 }
 
+function hay(f: Finding): string {
+  return [f.title, f.detail, f.evidence, f.reference].filter(Boolean).join(" ");
+}
+
 function textCites(f: Finding, reasons: string[]): boolean {
-  const hay = [f.title, f.detail, f.evidence, f.reference]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-  return reasons.some((r) => r && hay.includes(r.toLowerCase()));
+  const h = hay(f).toLowerCase();
+  return reasons.some((r) => r && h.includes(r.toLowerCase()));
 }
 
-function repoHit(findings: Finding[], tr: TestRepo): boolean {
-  const gt = tr.groundTruth;
-  // basename solto só vale quando o alvo é "o único manifesto do repo, que não existe"
-  const bareOk =
-    gt.category === "privacy-manifest-missing" && (gt.files?.length ?? 0) === 1;
-  const targets: { files: string[]; reasons: string[]; bareOk: boolean }[] = [
-    {
-      files: gt.files ?? [],
-      reasons: [gt.reference, ...(gt.expected ?? [])].filter((x): x is string => Boolean(x)),
-      bareOk,
-    },
-    ...(gt.phantom_permissions ?? []).map((pp) => ({
-      files: [pp.file],
-      reasons: [pp.key],
-      bareOk: false,
-    })),
-  ];
-  return findings.some((f) =>
-    targets.some(
-      (t) => t.files.length > 0 && fileMatchesAny(f, t.files, t.bareOk) && textCites(f, t.reasons),
-    ),
-  );
+/** o achado "aponta" o alvo do caso — por caminho ou por chave de permissão. */
+function findingHitsTarget(f: Finding, c: TestCase, allowBasename: boolean): boolean {
+  const files = c.target.files ?? [];
+  const keys = c.target.keys ?? [];
+  const byFile = files.length > 0 && fileMatchesAny(f, files, allowBasename);
+  const byKey = keys.length > 0 && keys.some((k) => hay(f).includes(k));
+  return byFile || byKey;
 }
 
-interface RepoScore {
-  id: number;
+function caseHit(findings: Finding[], c: TestCase): boolean {
+  if (c.expectativa === "nao-reportar") {
+    // "reportou" = um blocker nomeia a coisa específica. Para um caso por chave (ex.: o
+    // microfone do #2), olhamos SÓ a chave — o arquivo é compartilhado com outros achados
+    // legítimos (a permissão fantasma NSLocation mora no mesmo Info.plist).
+    const keys = c.target.keys ?? [];
+    const reported = findings.some((f) => {
+      if (f.severity !== "blocker") return false;
+      return keys.length > 0
+        ? keys.some((k) => hay(f).includes(k))
+        : findingHitsTarget(f, c, false);
+    });
+    return !reported;
+  }
+  const bareOk = c.tipo === "privacy-manifest-missing" && (c.target.files?.length ?? 0) === 1;
+  return findings.some((f) => findingHitsTarget(f, c, bareOk) && textCites(f, c.reason));
+}
+
+interface CaseScore {
+  id: string;
+  repo: number;
+  expectativa: string;
   hit: boolean;
+}
+interface RepoBlockers {
+  id: number;
   blockers: number;
   falsePositives: { file: string; title: string }[];
 }
 interface Scored {
-  perRepo: RepoScore[];
+  perCase: CaseScore[];
+  perRepoBlockers: RepoBlockers[];
   hits: number;
+  totalCases: number;
   blockerTotal: number;
   fpTotal: number;
   precision: number;
@@ -150,7 +158,8 @@ function runMs(r: Run): number {
 
 function score(runsPath: string, repos: TestRepo[]): Scored {
   const { runs } = JSON.parse(readFileSync(runsPath, "utf8")) as { runs: Run[] };
-  const perRepo: RepoScore[] = [];
+  const perCase: CaseScore[] = [];
+  const perRepoBlockers: RepoBlockers[] = [];
   let tokens = 0;
   let ms = 0;
 
@@ -161,6 +170,11 @@ function score(runsPath: string, repos: TestRepo[]): Scored {
       tokens += runTokens(run);
       ms += runMs(run);
     }
+
+    for (const c of tr.cases ?? []) {
+      perCase.push({ id: c.id, repo: tr.id, expectativa: c.expectativa, hit: caseHit(findings, c) });
+    }
+
     const gtFiles = [
       ...(tr.groundTruth.files ?? []),
       ...(tr.groundTruth.phantom_permissions ?? []).map((pp) => pp.file),
@@ -173,14 +187,16 @@ function score(runsPath: string, repos: TestRepo[]): Scored {
     const falsePositives = blockers
       .filter((f) => !fileMatchesAny(f, gtFiles, bareOk))
       .map((f) => ({ file: pathsIn(f)[0] ?? "(sem arquivo)", title: f.title ?? "" }));
-    perRepo.push({ id: tr.id, hit: repoHit(findings, tr), blockers: blockers.length, falsePositives });
+    perRepoBlockers.push({ id: tr.id, blockers: blockers.length, falsePositives });
   }
 
-  const blockerTotal = perRepo.reduce((s, r) => s + r.blockers, 0);
-  const fpTotal = perRepo.reduce((s, r) => s + r.falsePositives.length, 0);
+  const blockerTotal = perRepoBlockers.reduce((s, r) => s + r.blockers, 0);
+  const fpTotal = perRepoBlockers.reduce((s, r) => s + r.falsePositives.length, 0);
   return {
-    perRepo,
-    hits: perRepo.filter((r) => r.hit).length,
+    perCase,
+    perRepoBlockers,
+    hits: perCase.filter((c) => c.hit).length,
+    totalCases: perCase.length,
     blockerTotal,
     fpTotal,
     precision: blockerTotal === 0 ? 1 : 1 - fpTotal / blockerTotal,
@@ -206,14 +222,21 @@ function fillRow(text: string, startsWith: string, cells: Record<number, string>
   return lines.join("\n");
 }
 
+/** Substitui o miolo entre <!-- GEN:TAG:START --> e <!-- GEN:TAG:END -->. */
+function replaceRegion(text: string, tag: string, body: string): string {
+  const re = new RegExp(`(<!-- GEN:${tag}:START -->)[\\s\\S]*?(<!-- GEN:${tag}:END -->)`);
+  if (!re.test(text)) throw new Error(`região GEN:${tag} não encontrada`);
+  return text.replace(re, `$1\n${body}\n$2`);
+}
+
 function main(): void {
   const testRepos = JSON.parse(readFileSync(p("evaluation/test-repos.json"), "utf8")) as TestRepo[];
-  const total = testRepos.length;
+  const cases = testRepos.flatMap((r) => (r.cases ?? []).map((c) => ({ ...c, repo: r.id })));
 
   const base = score(p("evaluation/out/baseline.json"), testRepos);
   const sol = score(p("evaluation/out/solution.json"), testRepos);
 
-  const recallStr = (s: Scored): string => `${s.hits}/${total} (${pct(s.hits / total)})`;
+  const recallStr = (s: Scored): string => `${s.hits}/${s.totalCases} (${pct(s.hits / s.totalCases)})`;
   const precStr = (s: Scored): string => `${pct(s.precision)} (${s.fpTotal}/${s.blockerTotal} FP)`;
 
   // ── evaluation/results.md ──
@@ -221,7 +244,7 @@ function main(): void {
   md = fillRow(md, "| Recall", {
     2: recallStr(base),
     3: recallStr(sol),
-    4: `${sol.hits - base.hits >= 0 ? "+" : ""}${sol.hits - base.hits} HIT`,
+    4: `${sol.hits - base.hits >= 0 ? "+" : ""}${sol.hits - base.hits} caso`,
   });
   md = fillRow(md, "| Precisão", {
     2: precStr(base),
@@ -238,45 +261,61 @@ function main(): void {
     3: `${ktok(sol.tokens)} tok`,
     4: `${((sol.tokens / base.tokens - 1) * 100).toFixed(0)}% (${(base.tokens / sol.tokens).toFixed(1)}x)`,
   });
-  for (const tr of testRepos) {
-    const b = base.perRepo.find((r) => r.id === tr.id)!;
-    const s = sol.perRepo.find((r) => r.id === tr.id)!;
-    md = fillRow(md, `| ${tr.id} |`, {
-      3: b.hit ? "sim" : "não",
-      4: s.hit ? "sim" : "não",
-      5: String(b.falsePositives.length),
-      6: String(s.falsePositives.length),
-    });
+
+  const yn = (b: boolean): string => (b ? "sim" : "não");
+  const casesTable = [
+    "| caso | repo | expectativa | baseline | solução |",
+    "|---|---|---|---|---|",
+    ...cases.map((c) => {
+      const b = base.perCase.find((x) => x.id === c.id)!;
+      const s = sol.perCase.find((x) => x.id === c.id)!;
+      return `| \`${c.id}\` | #${c.repo} | ${c.expectativa} | ${yn(b.hit)} | ${yn(s.hit)} |`;
+    }),
+  ].join("\n");
+  md = replaceRegion(md, "CASES", casesTable);
+
+  const fpLines: string[] = [];
+  for (const [label, s] of [
+    ["Baseline", base],
+    ["Solução", sol],
+  ] as const) {
+    const items = s.perRepoBlockers.flatMap((r) =>
+      r.falsePositives.map((fp) => `  - #${r.id} \`${fp.file}\` — ${fp.title}`),
+    );
+    fpLines.push(`**${label}** — ${s.fpTotal} FP em ${s.blockerTotal} blockers${items.length ? ":" : "."}`);
+    fpLines.push(...items);
   }
+  md = replaceRegion(md, "FP", fpLines.join("\n"));
   writeFileSync(p("evaluation/results.md"), md);
 
-  // ── CHANGELOG.md: só a célula Precisão das linhas com dados (0 = baseline, 2 = solução atual) ──
+  // ── CHANGELOG.md: Recall (idx 5) + Precisão (idx 6) das linhas 0 e 2 ──
   let cl = readFileSync(p("CHANGELOG.md"), "utf8");
-  cl = fillRow(cl, "| 0 | Baseline", { 6: precStr(base) });
-  cl = fillRow(cl, "| 2 | + Orquestrador", { 6: precStr(sol) });
+  cl = fillRow(cl, "| 0 | Baseline", { 5: `**${base.hits}/${base.totalCases}**`, 6: precStr(base) });
+  cl = fillRow(cl, "| 2 | + Orquestrador", {
+    5: `**${sol.hits}/${sol.totalCases}**`,
+    6: precStr(sol),
+  });
   writeFileSync(p("CHANGELOG.md"), cl);
 
-  // ── resumo no stdout p/ revisão humana ──
-  console.log("=== RECALL ===");
-  console.log(`baseline: ${recallStr(base)}   solução: ${recallStr(sol)}`);
-  for (const tr of testRepos) {
-    const b = base.perRepo.find((r) => r.id === tr.id)!;
-    const s = sol.perRepo.find((r) => r.id === tr.id)!;
-    console.log(`  #${tr.id} ${tr.repo}: baseline ${b.hit ? "HIT" : "miss"} | solução ${s.hit ? "HIT" : "miss"}`);
+  // ── resumo p/ revisão humana ──
+  console.log(`=== RECALL (por caso) ===\nbaseline: ${recallStr(base)}   solução: ${recallStr(sol)}`);
+  for (const c of cases) {
+    const b = base.perCase.find((x) => x.id === c.id)!;
+    const s = sol.perCase.find((x) => x.id === c.id)!;
+    console.log(
+      `  ${c.id} (#${c.repo}, ${c.expectativa}): baseline ${b.hit ? "HIT" : "miss"} | solução ${s.hit ? "HIT" : "miss"}`,
+    );
   }
-  console.log("\n=== PRECISÃO ===");
-  console.log(`baseline: ${precStr(base)}   solução: ${precStr(sol)}`);
-  for (const s of [
+  console.log(`\n=== PRECISÃO ===\nbaseline: ${precStr(base)}   solução: ${precStr(sol)}`);
+  for (const [label, s] of [
     ["baseline", base],
     ["solução", sol],
   ] as const) {
-    console.log(`  ${s[0]}:`);
-    for (const r of s[1].perRepo) {
-      if (r.falsePositives.length === 0) continue;
+    console.log(`  ${label}:`);
+    for (const r of s.perRepoBlockers)
       for (const fp of r.falsePositives) console.log(`    #${r.id} FP: ${fp.file} — ${fp.title}`);
-    }
   }
-  console.log("\n=== CUSTO / TEMPO ===");
+  console.log(`\n=== CUSTO / TEMPO ===`);
   console.log(`baseline: ${ktok(base.tokens)} tok, ${secs(base.ms)}`);
   console.log(`solução : ${ktok(sol.tokens)} tok, ${secs(sol.ms)}`);
   console.log("\n[fill-results] results.md e CHANGELOG.md atualizados (não commitado).");

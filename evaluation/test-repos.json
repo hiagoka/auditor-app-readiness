@@ -7,12 +7,22 @@
     "resolvedCommitBefore": "03055659508d96b0e47afb8e5bdfbdb2de36a720",
     "commitAfter": "be14b33",
     "difficulty": "baixa",
-    "isNegativeCase": false,
+    "noUpstreamFix": false,
     "issueUrl": "",
     "prUrl": "https://github.com/auth0/react-native-auth0/pull/1641",
     "validated": "2026-08-29: bug confirmado. ios/PrivacyInfo.xcprivacy ausente no commitBefore; be14b33 (#1641, 'ship a privacy manifest with the A0Auth0 pod') cria o arquivo.",
     "accepted_extra_findings": [
       { "file": "example/ios/Auth0Example/Info.plist", "why": "NSLocationWhenInUseUsageDescription fantasma (descrição vazia, sem uso) no app de exemplo — problema real, mas fora do alvo do ground truth, que é a lib A0Auth0" }
+    ],
+    "cases": [
+      {
+        "id": "auth0-manifest-missing",
+        "tipo": "privacy-manifest-missing",
+        "expectativa": "reportar",
+        "target": { "files": ["ios/PrivacyInfo.xcprivacy"], "lines": [], "keys": [] },
+        "reason": ["PrivacyInfo.xcprivacy", "NSPrivacyCollectedDataTypeUserID"],
+        "descricao": "A lib A0Auth0 não declara PrivacyInfo.xcprivacy"
+      }
     ],
     "groundTruth": {
       "problem": "ios/PrivacyInfo.xcprivacy inexistente; a lib A0Auth0 não declara privacy manifest",
@@ -29,12 +39,38 @@
     "resolvedCommitBefore": "125742374a4ecd288c74f800fedb5b3be1607f7f",
     "commitAfter": "9c22ee8",
     "difficulty": "media",
-    "isNegativeCase": false,
+    "noUpstreamFix": false,
     "issueUrl": "",
     "prUrl": "",
     "exercisesAgents": ["privacy", "permissions"],
     "validated": "2026-08-29: (privacidade) confirmado — arquivo é ImagePickerManager.mm (não .m), phAsset.creationDate nas linhas 208 e 311, a lib (ios/) não traz PrivacyInfo.xcprivacy. (permissões) NSLocationWhenInUseUsageDescription em example/ios/example/Info.plist declarada com <string></string> vazia; grep de CLLocation/CoreLocation/Geolocation/requestWhenInUse/locationManager/navigator.geolocation em example/ios, example/src, src e ios: zero uso. Permissão fantasma real, não sintética.",
     "accepted_extra_findings": [],
+    "cases": [
+      {
+        "id": "image-picker-filetimestamp",
+        "tipo": "required-reason",
+        "expectativa": "reportar",
+        "target": { "files": ["ios/ImagePickerManager.mm"], "lines": [208, 311], "keys": [] },
+        "reason": ["3B52.1", "NSPrivacyAccessedAPICategoryFileTimestamp"],
+        "descricao": "phAsset.creationDate sem declarar NSPrivacyAccessedAPICategoryFileTimestamp"
+      },
+      {
+        "id": "image-picker-phantom-location",
+        "tipo": "permissao-fantasma",
+        "expectativa": "reportar",
+        "target": { "files": ["example/ios/example/Info.plist"], "lines": [], "keys": ["NSLocationWhenInUseUsageDescription"] },
+        "reason": ["NSLocationWhenInUseUsageDescription"],
+        "descricao": "NSLocationWhenInUseUsageDescription declarada com descrição vazia e sem uso de localização"
+      },
+      {
+        "id": "image-picker-microphone-not-phantom",
+        "tipo": "armadilha",
+        "expectativa": "nao-reportar",
+        "target": { "files": ["example/ios/example/Info.plist"], "lines": [], "keys": ["NSMicrophoneUsageDescription"] },
+        "reason": ["NSMicrophoneUsageDescription"],
+        "descricao": "NSMicrophoneUsageDescription NÃO é fantasma — gravação de vídeo usa o microfone indiretamente; reportar como fantasma é erro"
+      }
+    ],
     "groundTruth": {
       "problem": "(1) Privacidade: uso de phAsset.creationDate em ios/ImagePickerManager.mm sem declarar NSPrivacyAccessedAPICategoryFileTimestamp (motivo 3B52.1). (2) Permissões: NSLocationWhenInUseUsageDescription declarada no example/ios/example/Info.plist é permissão fantasma — descrição vazia e nenhum uso de API de localização no app.",
       "category": "required-reason-api-undeclared",
@@ -70,12 +106,26 @@
     "resolvedCommitBefore": "501a7b6daaef73d70fc23d77c1aefa3d4b25f8b3",
     "commitAfter": "170b85a",
     "difficulty": "media",
-    "isNegativeCase": false,
+    "noUpstreamFix": false,
     "issueUrl": "",
     "prUrl": "",
     "validated": "2026-08-29: bug confirmado. Caminho real é WootricSDK/WootricSDK/ (dir aninhado). NSUserDefaults standardUserDefaults em WTRApiClient.m (l.529, 632) e WTRDefaults.m (l.33, 47, 65). Nenhum .xcprivacy no repo.",
     "accepted_extra_findings": [
       { "file": "WootricSDK/WootricSDK/WTRSurveyViewController.m", "why": "salva imagem na câmera (UIActivityTypeSaveToCameraRoll) sem NSPhotoLibraryAddUsageDescription — real, discutido no CHANGELOG da iteração 1" }
+    ],
+    "cases": [
+      {
+        "id": "wootric-userdefaults",
+        "tipo": "required-reason",
+        "expectativa": "reportar",
+        "target": {
+          "files": ["WootricSDK/WootricSDK/WTRApiClient.m", "WootricSDK/WootricSDK/WTRDefaults.m"],
+          "lines": [529, 33],
+          "keys": []
+        },
+        "reason": ["CA92.1", "NSPrivacyAccessedAPICategoryUserDefaults"],
+        "descricao": "[NSUserDefaults standardUserDefaults] sem declarar NSPrivacyAccessedAPICategoryUserDefaults"
+      }
     ],
     "groundTruth": {
       "problem": "WTRApiClient.m e WTRDefaults.m usam [NSUserDefaults standardUserDefaults] sem declarar NSPrivacyAccessedAPICategoryUserDefaults (CA92.1)",
@@ -97,13 +147,27 @@
     "resolvedCommitBefore": "e93e7454b4b7cabbe2bdacd2c5f6cd90dede51ae",
     "commitAfter": "16f64bf",
     "difficulty": "alta",
-    "isNegativeCase": false,
+    "noUpstreamFix": false,
     "issueUrl": "",
     "prUrl": "",
     "validated": "2026-08-29: bug confirmado, match exato. SettingsCacheClient.swift:51 => 'private let cache: UserDefaults = .standard' em vez do wrapper GULUserDefaults. Caso principal: exige ler o código, não só checar presença de arquivo.",
     "accepted_extra_findings": [
       { "file": "FirebaseAppCheck/Sources/Core/FIRAppCheck.m", "why": "uso de required-reason API (UserDefaults) sem categoria declarada num manifesto aplicável — gap real do firebase-ios-sdk em 10.25.0, não é o arquivo do PR de referência" },
       { "file": "FirebaseAppDistributionInternal/Sources/InAppFeedback.swift", "why": "anexo de screenshot no in-app feedback acessa fotos sem a chave de uso correspondente — real" }
+    ],
+    "cases": [
+      {
+        "id": "firebase-gul-wrapper",
+        "tipo": "required-reason",
+        "expectativa": "reportar",
+        "target": {
+          "files": ["FirebaseSessions/Sources/Settings/SettingsCacheClient.swift"],
+          "lines": [51],
+          "keys": []
+        },
+        "reason": ["GULUserDefaults", "NSPrivacyAccessedAPICategoryUserDefaults"],
+        "descricao": "UserDefaults.standard puro em vez do wrapper GULUserDefaults, sem required-reason (caso difícil: manifesto existe, um arquivo o contorna)"
+      }
     ],
     "groundTruth": {
       "problem": "SettingsCacheClient.swift:51 usa UserDefaults.standard puro em vez do wrapper GULUserDefaults, sem required-reason declarado",
@@ -121,12 +185,30 @@
     "resolvedCommitBefore": "2643fe1a89a4763282d2ae34b37668aae8c430bb",
     "commitAfter": null,
     "difficulty": "baixa",
-    "isNegativeCase": false,
+    "noUpstreamFix": false,
     "issueUrl": "",
     "prUrl": "",
     "validated": "2026-08-29: bug confirmado. Caminhos reais têm prefixo ShoutKitApp/. Targets ShoutKitWatchApp e ShoutKitTVApp existem no .pbxproj mas não têm PrivacyInfo.xcprivacy (só ShoutKitApp/ShoutKitApp/ tem). ShoutKitWatchApp/WatchAppDependencies.swift usa UserDefaults. ATENÇÃO: história do repo foi reescrita — o commitAfter cb3c677 do plano não existe mais.",
     "accepted_extra_findings": [
       { "file": "Packages/FeatureFlags/Sources/FeatureFlags/Container+FeatureFlags.swift", "why": "SPM package usa UserDefaults sem PrivacyInfo.xcprivacy aplicável — classe certa do problema; o ground truth aponta os targets watchOS/tvOS, o agente achou outro alvo real do mesmo tipo" }
+    ],
+    "cases": [
+      {
+        "id": "shoutkit-watchapp-manifest",
+        "tipo": "privacy-manifest-missing",
+        "expectativa": "reportar",
+        "target": { "files": ["ShoutKitApp/ShoutKitWatchApp/PrivacyInfo.xcprivacy"], "lines": [], "keys": [] },
+        "reason": ["NSPrivacyAccessedAPICategoryUserDefaults"],
+        "descricao": "Target watchOS acessa UserDefaults e não tem PrivacyInfo.xcprivacy próprio"
+      },
+      {
+        "id": "shoutkit-tvapp-manifest",
+        "tipo": "privacy-manifest-missing",
+        "expectativa": "reportar",
+        "target": { "files": ["ShoutKitApp/ShoutKitTVApp/PrivacyInfo.xcprivacy"], "lines": [], "keys": [] },
+        "reason": ["NSPrivacyAccessedAPICategoryUserDefaults"],
+        "descricao": "Target tvOS acessa UserDefaults e não tem PrivacyInfo.xcprivacy próprio"
+      }
     ],
     "groundTruth": {
       "problem": "Faltam ShoutKitApp/ShoutKitWatchApp/PrivacyInfo.xcprivacy e ShoutKitApp/ShoutKitTVApp/PrivacyInfo.xcprivacy; ambos os targets acessam UserDefaults (direto ou via Packages)",
@@ -146,12 +228,22 @@
     "resolvedCommitBefore": "cbf2a2d0045b46258270f27959bef9bde04c72bc",
     "commitAfter": null,
     "difficulty": "alta",
-    "isNegativeCase": true,
+    "noUpstreamFix": true,
     "issueUrl": "",
     "prUrl": "",
-    "validated": "2026-08-29: fixado no HEAD do clone (tag 10.3.5). RNMBXModule.swift:120 => 'UserDefaults.standard.set(telemetryEnabled, forKey: \"MGLMapboxMetricsEnabled\")'. Nenhum PrivacyInfo.xcprivacy em ios/ (só no example/). Caso negativo: sem correção de referência.",
+    "validated": "2026-08-29: fixado no HEAD do clone (tag 10.3.5). RNMBXModule.swift:120 => 'UserDefaults.standard.set(telemetryEnabled, forKey: \"MGLMapboxMetricsEnabled\")'. Nenhum PrivacyInfo.xcprivacy em ios/ (só no example/). noUpstreamFix: não há commit de correção aceito upstream — a ferramenta deve reportar mesmo assim (reportar = HIT).",
     "accepted_extra_findings": [
       { "file": "example/ios/RNMapboxExample/Info.plist", "why": "NSLocation declarada e não usada no app de exemplo — real, fora do alvo do ground truth, que é a lib RNMBX" }
+    ],
+    "cases": [
+      {
+        "id": "rnmapbox-userdefaults-no-manifest",
+        "tipo": "required-reason",
+        "expectativa": "reportar",
+        "target": { "files": ["ios/RNMBX/RNMBXModule.swift"], "lines": [120], "keys": [] },
+        "reason": ["NSPrivacyAccessedAPICategoryUserDefaults", "PrivacyInfo.xcprivacy"],
+        "descricao": "UserDefaults.standard sem declaração e a lib não tem PrivacyInfo.xcprivacy (noUpstreamFix: sem exemplo de correção para se guiar)"
+      }
     ],
     "groundTruth": {
       "problem": "ios/RNMBX/RNMBXModule.swift:120 chama UserDefaults.standard sem declaração; a lib não tem nenhum PrivacyInfo.xcprivacy",
