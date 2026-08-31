@@ -7,7 +7,7 @@ Cada iteração roda contra os mesmos repositórios de `evaluation/test-repos.js
 |---|---|---|---|---|---|---|---|
 | 0 | Baseline | 1 prompt único: "revise esse código de app mobile e aponte problemas de conformidade" (`gpt-4.1-mini`) | referência | **5/9** | 0.33 (8/12 FP) | 44s (6 repos) | ~US$ 0,03 (77k tokens) |
 | 1 | Privacidade + Permissões | separa em dois agentes especializados | recall sobe; pode surgir falso positivo por falta de contexto cruzado | n/d | n/d | ~55s (6 repos) | ~20k tokens |
-| 2 | + Orquestrador | dedupe determinístico + 1 chamada de IA para severidade/conflito | precisão sobe | **6/9** | 1.00 (0/11 FP) | ~1 min (6 repos) | ~23k tokens |
+| 2 | + Orquestrador | dedupe determinístico + 1 chamada de IA para severidade/conflito | precisão sobe | **6/9** | 0.82 (2/11 FP) | ~1 min (6 repos) | ~23k tokens |
 | 3 | + Guidelines (busca web) — **não executado** | agente com `web_search` checando as App Store Review Guidelines vigentes | pega mudança recente de política que um prompt estático perderia | — | — | — | — |
 
 ## Notas de avaliação
@@ -37,14 +37,33 @@ alargaram a diferença a favor do pipeline:** (a) a regra do basename solto (bas
 em 0.67). Cada um está justificado acima, foi verificado à mão, e o critério anterior continua
 reproduzível via `git show`. O padrão é real — está registrado aqui de propósito.
 
-**Sobre a precisão 1.00.** A precisão é medida contra `groundTruth` + `accepted_extra_findings`
-(campo em `test-repos.json`). A lista de aceitos foi curada manualmente **depois** de observar
-as saídas dos agentes — tem circularidade estrutural: por construção não daria menos que 1.00 a
-não ser por decisão do curador. Cada um dos 11 blockers da solução foi verificado
-individualmente (aponta arquivo real, descreve problema real). **1.00 aqui significa "nenhum
-achado indefensável", não "testado contra achados inéditos".** O baseline foi pontuado contra a
-mesma lista, sem vantagem — e mesmo assim deu 0.33, porque 8 dos seus 12 blockers são vagos
-(sem arquivo), alucinados (`file` apontando código que não existe assim) ou fora do escopo.
+**Sobre a precisão 0.82 — e o 1.00 que ela não era.** A precisão é medida contra `groundTruth` +
+`accepted_extra_findings` (campo em `test-repos.json`). A lista de aceitos foi curada manualmente
+**depois** de observar as saídas dos agentes — circularidade estrutural: por construção, um
+blocker vira "aceito" por decisão do curador. Até 2026-08-31 essa lista sustentava um placar de
+**1.00 (0 FP em 11)**. Não era ressalva teórica: uma segunda varredura da lista, item a item
+contra o código dos repos clonados, achou **dois falsos positivos que tinham sido aceitos**
+(2026-08-31) —
+
+- `WootricSDK/.../WTRSurveyViewController.m` — o `UIActivityTypeSaveToCameraRoll` que o agente
+  leu como "acessa fotos" está **dentro de `excludedActivityTypes`**: o app está removendo a
+  opção de salvar na galeria, e os itens compartilhados são texto puro.
+- `example/ios/RNMapboxExample/Info.plist` — marcado como permissão fantasma de localização sem
+  conferir o código do app de exemplo, que tem `example/src/examples/UserLocation/` inteiro
+  usando `followUserLocation`; as três descrições `NSLocation*` no plist estão preenchidas, não
+  vazias.
+
+Reclassificados como FP, o placar da solução é **0.82 (2 FP em 11)**. A varredura anterior tinha
+conferido três entradas da lista (`FIRAppCheck.m`, `InAppFeedback.swift`, `Container+FeatureFlags.swift`
+— todas reais) e parado antes de terminar; as duas de cima passaram. **Causa raiz única, não dois
+bugs:** nos dois casos o agente casou um símbolo (`UIActivityTypeSaveToCameraRoll`, uma chave
+`NSLocation*`) e ignorou o contexto sintático em volta — detecta a *presença* do símbolo, não o
+*contexto* em que ele aparece. É o mesmo tipo de erro que o baseline comete e que esta ferramenta
+foi construída para reduzir; a diferença é de **frequência, não de natureza**: 8 em 12 blockers
+errados (dois terços) no baseline, 2 em 11 (menos de um quinto) no pipeline. Os 9 blockers
+restantes da solução foram reverificados um a um (arquivo real, problema real). O baseline foi
+pontuado contra a mesma lista, sem vantagem, e deu 0.33 — 8 dos 12 blockers são vagos (sem
+arquivo), alucinados (`file` apontando código que não existe assim) ou fora do escopo.
 
 ## Experimentos removidos
 
@@ -71,6 +90,15 @@ mesma lista, sem vantagem — e mesmo assim deu 0.33, porque 8 dos seus 12 block
   nenhum achado existente reflete a condição injetada → MISS/MISS mecânico. A alternativa —
   re-executar a avaliação — mexeria no harness a poucas horas do prazo, com risco de invalidar
   números já medidos e commitados. Ficou em 9 casos verificados; "boa meta" não é requisito.
+
+- **10º caso *real* por promoção — tentado e revertido (2026-08-31).** Ideia: promover um achado
+  que já estava em `accepted_extra_findings` a caso pontuado, sem re-run. O candidato era o
+  `UIActivityTypeSaveToCameraRoll` do Wootric (`WTRSurveyViewController.m`). Ao conferir a linha
+  no código clonado, o símbolo estava **dentro de `excludedActivityTypes`** — o app remove a
+  opção de salvar na galeria, não a usa. Não só o 10º caso caiu: o achado saiu de
+  `accepted_extra_findings` (era FP), e a mesma varredura pegou um segundo FP aceito por engano
+  (fantasma de localização no app de exemplo do maps). Efeito real: **precisão da solução 1.00 →
+  0.82**. Dataset fica em 9 casos. Ver "Sobre a precisão 0.82" em `## Notas de avaliação`.
 
 ## Notas por iteração
 
@@ -112,7 +140,7 @@ só porque o alvo do teste é o repositório da SDK.
 
 Hipótese para a iteração 1: separar 'isso está declarado?' de 'essa declaração cobre este uso/bundle?' deve subir o recall no caso firebase (#4) e no shoutkit (#5). O Wootric (#3) exige correção adicional, fora do escopo da especialização: reforçar o contrato estruturado (campo `file` obrigatório, validado) — sem isso o mesmo erro deve se repetir mesmo com agente dedicado.
 
-Cobertura de avaliação para permissão fantasma: até 2026-08-29 os 6 repositórios de `evaluation/test-repos.json` tinham ground truth só de privacidade — nenhum caso de permissão fantasma, ou seja, o agente de Permissões entrava na iteração 1 sem nenhum caso que o exercitasse. Isso mudou hoje: o repo #2 (`react-native-image-picker`), no mesmo `commitBefore` (1257423) que já estava no dataset e sem nenhuma injeção sintética, ganhou cobertura real de permissão fantasma — `NSLocationWhenInUseUsageDescription` declarada com `<string></string>` vazia em `example/ios/example/Info.plist`, e grep de `CLLocation`/`CoreLocation`/`Geolocation`/`requestWhenInUse`/`locationManager`/`navigator.geolocation` em `example/ios`, `example/src`, `src` e `ios` sem nenhum uso (lib de foto/câmera não acessa localização). Com isso o #2 passa a exercitar os dois agentes numa única execução: Privacidade em `ios/ImagePickerManager.mm` (`phAsset.creationDate`, motivo 3B52.1) e Permissões no `Info.plist` (`NSLocationWhenInUseUsageDescription`). O ground truth do #2 também registra um near-miss deliberado: `NSMicrophoneUsageDescription`, com uso indireto plausível (o app grava vídeo, e a captura de vídeo via `UIImagePickerController` grava áudio sem o app chamar `AVAudioSession` direto), que por isso NÃO é marcada como fantasma — caso-armadilha para grep ingênuo.
+Cobertura de avaliação para permissão fantasma: até 2026-08-29 os 6 repositórios de `evaluation/test-repos.json` tinham ground truth só de privacidade — nenhum caso de permissão fantasma, ou seja, o agente de Permissões entrava na iteração 1 sem nenhum caso que o exercitasse. Isso mudou hoje: o repo #2 (`react-native-image-picker`), no mesmo `commitBefore` (1257423) que já estava no dataset e sem nenhuma injeção sintética, ganhou cobertura real de permissão fantasma — `NSLocationWhenInUseUsageDescription` declarada com `<string></string>` vazia em `example/ios/example/Info.plist`, e grep de `CLLocation`/`CoreLocation`/`Geolocation`/`requestWhenInUse`/`locationManager`/`navigator.geolocation` em `example/ios`, `example/src`, `src` e `ios` sem nenhum uso (lib de foto/câmera não acessa localização). Com isso o #2 passa a exercitar os dois agentes numa única execução: Privacidade em `ios/ImagePickerManager.mm` (`phAsset.creationDate`, motivo 3B52.1) e Permissões no `Info.plist` (`NSLocationWhenInUseUsageDescription`). O ground truth do #2 também registra um near-miss deliberado: `NSMicrophoneUsageDescription`, com uso indireto plausível (o app grava vídeo, e a captura de vídeo via `UIImagePickerController` grava áudio sem o app chamar `AVAudioSession` direto), que por isso NÃO é marcada como fantasma — caso-armadilha para grep ingênuo. (Ressalva de 2026-08-31: como o agente de Permissões comprovadamente super-reporta fantasma no #6 do maps, a passagem dele nessa armadilha vale menos como evidência de discriminação — pode ser só omissão. Ver a ressalva em `evaluation/results.md`.)
 
 ### 1 — Privacidade + Permissões
 
@@ -148,26 +176,34 @@ Continuam MISS, para todo mundo:
 
 **Custo: 77k → ~20k tokens no total (~4x mais barato).** **Tempo:** ~5–9 s por repo, `firebase`
 ~18 s. **Precisão:** não medida nesta iteração (JSON sobrescrito pelo da iteração 2) — o scorer
-mede baseline 0.33 e pipeline final 1.00.
+mede baseline 0.33 e pipeline final 0.82.
 
 `file:line`: no baseline eram alucinados (ex.: `NativeBridge.swift:40`, e um offset de caractere
 `5790` reportado como linha); na iteração 1 são todos reais.
 
-Novidade do agente de Permissões, que o baseline não fazia:
+Novidade do agente de Permissões, que o baseline não fazia — com um acerto real e um erro em
+cada direção:
 
-- **Permissão fantasma** — `NSLocationWhenInUseUsageDescription` com descrição vazia e sem uso
-  de API de localização: sinalizada em #1, #2 e #6.
-- **Permissão usada mas não declarada** — acesso a fotos sem a chave de uso correspondente: em
-  #3 e #4.
+- **Permissão fantasma** — chave `NSLocation*` declarada sem uso de API de localização:
+  correto em #1 (`example/ios/Auth0Example/Info.plist`, descrição vazia) e no caso pontuado
+  `image-picker-phantom-location` do #2. **Errado em #6:** marcou as chaves do app de exemplo do
+  maps como fantasma sem conferir `example/src/examples/UserLocation/` (usa `followUserLocation`)
+  — descrições preenchidas, uso real. É um dos dois FP da solução.
+- **Permissão usada mas não declarada** — capability sem a chave `NS*UsageDescription`
+  correspondente: correto em #4 (`InAppFeedback.swift`, `PHAsset`/`PHPhotoLibrary` de verdade).
+  **Errado em #3:** leu `UIActivityTypeSaveToCameraRoll` como uso de fotos, mas o símbolo está
+  dentro de `excludedActivityTypes` (o app *remove* essa opção do share sheet). O outro FP.
 
-Achados fora do ground truth (app de exemplo em auth0/maps; acesso a fotos em Wootric/Firebase)
-são plausivelmente reais — incompletude do ground truth, não alucinação. Para o uso real da
-ferramenta (auditar o próprio app antes do envio) esse é justamente o tipo de achado que se
-quer.
+Esses dois FP são a mesma causa raiz — o agente casa o símbolo e ignora o contexto sintático em
+volta. Detalhe no bloco "Sobre a precisão 0.82" em `## Notas de avaliação`. Os achados fora do
+ground truth que **se sustentam** (permissão fantasma no app de exemplo do auth0; fotos no
+Firebase) são incompletude do ground truth, não alucinação — e são o tipo de achado que se quer
+no uso real da ferramenta.
 
 **Decisão: MANTIDO.** Por caso o recall sobe +1 (baseline 5/9 → pipeline 6/9, o fantasma
 `NSLocation` do #2); e a separação trocou achados vagos/alucinados por achados com `file:line`
-real e cortou o custo ~4x — é o que a precisão vai medir na iteração 2. O #4 segue como o caso duro: o manifesto existe e está
+real e cortou o custo ~4x — é o que a precisão vai medir na iteração 2 (0.33 → 0.82, não
+perfeita). O #4 segue como o caso duro: o manifesto existe e está
 quase certo, mas um arquivo bypassa o wrapper `GULUserDefaults` — a especialização sozinha não
 resolve. Precisa de ranqueamento do que se mostra ao modelo (hoje o agente de Privacidade corta
 a lista de usos em 40 arquivos por ordem alfabética) e/ou do contexto do PR. Fica para a
@@ -199,13 +235,19 @@ mérito do agente de Permissões, não do Orquestrador — que só reorganiza o 
 produziram, sem recuperar recall. Casos ainda em aberto: `firebase-gul-wrapper` (#4) e os dois
 manifestos watchOS/tvOS do #5.
 
-**Precisão: 0.33 → 1.00** (scorer determinístico, medido no baseline e neste pipeline). O
+**Precisão: 0.33 → 0.82** (scorer determinístico, medido no baseline e neste pipeline). O
 baseline tem 8 falso positivo em 12 blockers — 2 inventando uso em `ios/NativeBridge.swift` (#1),
 "manifesto ausente" sem citar arquivo (#2, #6), `NSCamera`/`NSPhoto` "ausentes" que na verdade
 existem (#2), 3 blockers sobre manifestos de módulos do firebase fora do escopo (#4). O pipeline
-tem 0 em 11 — todos os blockers apontam arquivo real e descrevem problema real. **Ler antes o
-bloco "Sobre a precisão 1.00" em `## Notas de avaliação`: a lista de aceitos que sustenta esse
-1.00 é curada à mão a partir das saídas observadas.**
+tem **2 FP em 11** — `WTRSurveyViewController.m` (símbolo de câmera dentro de uma lista de
+exclusão) e `example/ios/RNMapboxExample/Info.plist` (chave de localização marcada como fantasma
+sem conferir o uso no app de exemplo). Os dois passaram por `accepted_extra_findings` até
+2026-08-31, quando uma segunda varredura item a item os pegou; os outros 9 blockers foram
+reverificados um a um. **Ler o bloco "Sobre a precisão 0.82" em `## Notas de avaliação`:** a
+lista de aceitos que sustentava o placar anterior (1.00) é curada à mão a partir das saídas
+observadas, e foi exatamente por aí que os dois FP entraram. A diferença para o baseline é de
+frequência, não de natureza — mesmo tipo de erro (casar símbolo, ignorar contexto), dois terços
+dos blockers no baseline contra menos de um quinto no pipeline.
 
 **Custo: ~20k → ~23k tokens** (o Orquestrador adiciona ~700–900 tok/repo, ~3,9k no total);
 ainda ~3,3x mais barato que o baseline (77k). **Tempo:** ~53 s nos 6 repos (soma das durações
@@ -214,9 +256,11 @@ dos agentes no `solution.json`; o overhead do Orquestrador não foi cronometrado
 O `solution.json` passou a incluir a resposta crua do Orquestrador por repo (arquivo cresceu
 para ~85K).
 
-**Decisão: MANTIDO.** É o "precisão sobe" que a linha da tabela previa: 0.33 → 1.00, corte de
+**Decisão: MANTIDO.** É o "precisão sobe" que a linha da tabela previa: 0.33 → 0.82, corte de
 31% em achados redundantes, sem perder nenhum caso, e de quebra o framing errado de "wrapper" no
-Wootric foi absorvido. O #4 e os dois casos do #5 continuam abertos porque dependem do que o
+Wootric foi absorvido. Não é 1.00: os dois FP de símbolo-sem-contexto (Wootric, maps) sobrevivem
+ao Orquestrador, que reorganiza mas não valida contexto sintático — apontam a próxima iteração
+tanto quanto o #4 e o #5. O #4 e os dois casos do #5 continuam abertos porque dependem do que o
 agente de Privacidade mostra ao modelo (corte alfabético em 40 usos), não do Orquestrador. Fica
 para a próxima iteração.
 

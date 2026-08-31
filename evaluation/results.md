@@ -8,7 +8,7 @@ Fonte: `evaluation/out/baseline.json` e `evaluation/out/solution.json`, comparad
 | Métrica | Baseline | Solução | Mudança |
 |---|---|---|---|
 | Recall (casos acertados) | 5/9 (0.56) | 6/9 (0.67) | +1 caso |
-| Precisão (não gerou falso positivo) | 0.33 (8/12 FP) | 1.00 (0/11 FP) | +0.67 |
+| Precisão (não gerou falso positivo) | 0.33 (8/12 FP) | 0.82 (2/11 FP) | +0.48 |
 | Tempo de execução (total) | 44s | 53s | +8s |
 | Custo em tokens (total) | 77.2k tok | 23.3k tok | -70% (3.3x) |
 
@@ -26,6 +26,11 @@ três). `expectativa: reportar` → acerto é apontar o alvo; `expectativa: nao-
 > literalmente "Sem o Info.plist completo, não é possível confirmar". Mesmo ponto no placar,
 > confiança diferente. Uma versão futura do scorer poderia exigir prova de exame para creditar
 > um `nao-reportar`.
+>
+> **E lê com mais cautela ainda depois de 2026-08-31:** o agente de Permissões erra reportando
+> permissão fantasma quando ela não é (o FP do #6, `example/ios/RNMapboxExample/Info.plist`).
+> Um agente que comprovadamente super-reporta fantasma passando nesta armadilha específica é
+> evidência fraca de que ele *discrimina* fantasma de não-fantasma — pode ter só não olhado.
 
 <!-- GEN:CASES:START -->
 | caso | repo | expectativa | baseline | solução |
@@ -56,8 +61,26 @@ curada `accepted_extra_findings`.
   - #4 `Crashlytics/Resources/PrivacyInfo.xcprivacy` — Uso de NSUserDefaults sem declaração adequada em PrivacyInfo.xcprivacy
   - #4 `FirebaseDynamicLinks/Sources/Resources/PrivacyInfo.xcprivacy` — Uso de timestamps de arquivo sem declaração em PrivacyInfo.xcprivacy
   - #6 `PrivacyInfo.xcprivacy` — PrivacyInfo.xcprivacy missing for Mapbox data collection
-**Solução** — 0 FP em 11 blockers.
+**Solução** — 2 FP em 11 blockers:
+  - #3 `WootricSDK/WootricSDK/WTRSurveyViewController.m` — Permissão de fotos usada mas não declarada no Info.plist
+  - #6 `example/ios/RNMapboxExample/Info.plist` — Permissões de localização declaradas mas não usadas (permissão fantasma)
 <!-- GEN:FP:END -->
+
+Os 2 FP da solução são **uma causa raiz, não dois bugs** (reclassificados em 2026-08-31, depois
+de uma segunda varredura da lista `accepted_extra_findings` item a item contra o código):
+
+- `WTRSurveyViewController.m` — o `UIActivityTypeSaveToCameraRoll` está **dentro de
+  `excludedActivityTypes`**: o app remove "salvar na galeria" do share sheet, e os itens
+  compartilhados são texto puro. Não há acesso a fotos.
+- `example/ios/RNMapboxExample/Info.plist` — marcado como fantasma sem conferir o código do app
+  de exemplo, que tem `example/src/examples/UserLocation/` inteiro usando `followUserLocation`;
+  as três descrições `NSLocation*` estão preenchidas, não vazias.
+
+Nos dois o agente casou um símbolo e ignorou o contexto sintático em volta — detecta a presença
+do símbolo, não o contexto. É o mesmo tipo de erro do baseline; a diferença é de frequência (8
+em 12 → 2 em 11), não de natureza. Até essa varredura, os dois estavam em
+`accepted_extra_findings` e o placar da solução era 1.00. Detalhe no `CHANGELOG.md` → "Sobre a
+precisão 0.82".
 
 ## Critério (implementado em `scripts/fill-results.ts`)
 
@@ -80,7 +103,8 @@ estruturado. `Recall = casos acertados / total de casos`.
 `accepted_extra_findings[].file`. `Precisão = 1 − FP / total de blockers`.
 
 `accepted_extra_findings` é curada **à mão a partir das saídas observadas** — ver a nota "Sobre a
-precisão 1.00" no `CHANGELOG.md` sobre a circularidade.
+precisão 0.82" no `CHANGELOG.md` sobre a circularidade (e sobre os dois FP que ela deixou passar
+até 2026-08-31).
 
 **Tempo / custo:** somados por conjunto. Tokens do baseline vêm de `run.tokensUsed`; da solução,
 de `run.agentResults[].tokensUsed` + `run.orchestration.tokensUsed`.

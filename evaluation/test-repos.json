@@ -110,9 +110,7 @@
     "issueUrl": "",
     "prUrl": "",
     "validated": "2026-08-29: bug confirmado. Caminho real é WootricSDK/WootricSDK/ (dir aninhado). NSUserDefaults standardUserDefaults em WTRApiClient.m (l.529, 632) e WTRDefaults.m (l.33, 47, 65). Nenhum .xcprivacy no repo.",
-    "accepted_extra_findings": [
-      { "file": "WootricSDK/WootricSDK/WTRSurveyViewController.m", "why": "salva imagem na câmera (UIActivityTypeSaveToCameraRoll) sem NSPhotoLibraryAddUsageDescription — real, discutido no CHANGELOG da iteração 1" }
-    ],
+    "accepted_extra_findings": [],
     "cases": [
       {
         "id": "wootric-userdefaults",
@@ -232,9 +230,7 @@
     "issueUrl": "",
     "prUrl": "",
     "validated": "2026-08-29: fixado no HEAD do clone (tag 10.3.5). RNMBXModule.swift:120 => 'UserDefaults.standard.set(telemetryEnabled, forKey: \"MGLMapboxMetricsEnabled\")'. Nenhum PrivacyInfo.xcprivacy em ios/ (só no example/). noUpstreamFix: não há commit de correção aceito upstream — a ferramenta deve reportar mesmo assim (reportar = HIT).",
-    "accepted_extra_findings": [
-      { "file": "example/ios/RNMapboxExample/Info.plist", "why": "NSLocation declarada e não usada no app de exemplo — real, fora do alvo do ground truth, que é a lib RNMBX" }
-    ],
+    "accepted_extra_findings": [],
     "cases": [
       {
         "id": "rnmapbox-userdefaults-no-manifest",

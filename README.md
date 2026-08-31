@@ -28,12 +28,15 @@ noise, at 1/3 of the cost**.
 | Metric | Baseline (1 prompt) | Pipeline (2 agents + orchestrator) |
 |---|---|---|
 | Recall (cases) | 5/9 | **6/9** |
-| Precision (blockers) | 0.33 — 8 of 12 are false positives | **1.00** — 0 of 11 |
+| Precision (blockers) | 0.33 — 8 of 12 are false positives | **0.82** — 2 of 11 |
 | Cost | 77k tokens | **23k tokens** (≈3.3× cheaper) |
 
 Baseline finds the right problems but wraps them in noise: hallucinated file paths, "manifest
-missing" without naming a file, blockers that are actually fine. The pipeline's win is precision
-and cost, not recall.
+missing" without naming a file, blockers that are actually fine. The pipeline makes the same
+*kind* of mistake far less often — its 2 false positives (a camera-roll symbol inside an
+exclusion list; a location key flagged as unused when the example app does use it) are both the
+agent matching a symbol and missing the syntax around it. The pipeline's win is precision and
+cost, not recall.
 
 **Run it.**
 
@@ -104,8 +107,11 @@ entregue.
 O agente de Permissões cobre duas direções: **declarada e não usada** (permissão fantasma) e
 **usada e não declarada** (chave `NS*UsageDescription` faltando para uma capability que o código
 usa). A primeira tem caso pontuado no dataset (`image-picker-phantom-location`); a segunda está
-**implementada mas sem caso dedicado** — os achados que ela produziu (fotos no Wootric e no
-Firebase) entram como `accepted_extra_findings`, não como caso de recall.
+**implementada mas sem caso dedicado** — o achado que se sustenta (fotos no Firebase,
+`InAppFeedback.swift`) entra como `accepted_extra_findings`, não como caso de recall. O achado
+equivalente no Wootric era falso positivo (símbolo dentro de `excludedActivityTypes`), retirado
+da lista em 2026-08-31 junto com um fantasma de localização espúrio no app de exemplo do maps —
+ver "Sobre a precisão 0.82" no `CHANGELOG.md`.
 
 ## Uso
 
@@ -170,10 +176,15 @@ chamada de IA, `baseline/` (1 prompt para comparação), harness de avaliação 
 
 O prompt único **não deixa de ver** os problemas de conformidade — ele os produz **com ruído**.
 Na avaliação: 8 falsos positivos em 12 blockers (arquivo alucinado, "manifesto ausente" sem
-apontar arquivo, blockers fora do escopo). O ganho da orquestração é limpar esse ruído
-(**precisão 0.33 → 1.00**) por **1/3 do custo** (77k → 23k tokens). O recall quase não move —
-5/9 → 6/9, um caso a mais (o fantasma `NSLocation`, que o prompt único hedgeava em vez de
-afirmar). A lição: quando as leituras são de tipos diferentes ("está declarado?" vs. "cobre
-este uso?"), separar em agentes não faz o modelo *achar mais*, faz ele *errar menos e mais
-barato*. Construí a própria ferramenta com um workflow de agentes orquestrados (Maestri), o que
+apontar arquivo, blockers fora do escopo). O ganho da orquestração é reduzir esse ruído
+(**precisão 0.33 → 0.82**) por **1/3 do custo** (77k → 23k tokens). Não é 1.00: o pipeline comete
+o mesmo *tipo* de erro do baseline — casar um símbolo e ignorar o contexto sintático em volta —
+só que 2 vezes em 11 blockers em vez de 8 em 12. Os dois FP (um `UIActivityTypeSaveToCameraRoll`
+dentro de `excludedActivityTypes`; uma chave `NSLocation*` marcada como fantasma num app de
+exemplo que usa localização) escaparam de uma primeira curadoria e só apareceram numa segunda
+varredura item a item (ver `CHANGELOG.md`). O recall quase não move — 5/9 → 6/9, um caso a mais
+(o fantasma `NSLocation` do #2, que o prompt único hedgeava em vez de afirmar). A lição: quando
+as leituras são de tipos diferentes ("está declarado?" vs. "cobre este uso?"), separar em
+agentes não faz o modelo *achar mais*, faz ele *errar menos e mais barato* — sem eliminar a
+classe de erro. Construí a própria ferramenta com um workflow de agentes orquestrados (Maestri), o que
 deu intuição direta de quando dividir responsabilidades ajuda e quando só adiciona complexidade.

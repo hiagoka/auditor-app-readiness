@@ -66,7 +66,7 @@ o modelo coloca a informação: o achado "manifesto ausente" do repo #2 saiu com
 `file: "ios/ImagePickerManager.mm"` na rodada de avaliação e com `file: null` (caminho só no
 `evidence`) num run posterior do CLI, mesmo repo e mesmo modelo. Rodar de novo deve dar recall e
 precisão iguais ou muito próximos, mas os achados individuais podem variar na forma. É a mesma
-limitação registrada na nota "Sobre a precisão 1.00" do `CHANGELOG.md`.
+limitação registrada na nota "Sobre a precisão 0.82" do `CHANGELOG.md`.
 
 ## Dataset
 

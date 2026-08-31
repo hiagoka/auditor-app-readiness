@@ -326,6 +326,17 @@ campo do `test-repos.json`.
   (`orchestration.rationale` do #3). **Causa raiz não corrigida** — está no prompt do agente de
   Privacidade, que oferece a troca por wrapper sempre que vê um identificador `*UserDefaults`
   distinto no repo. Registrado em `CHANGELOG.md`, seção "### 2 — Orquestrador".
+- **Dois falsos positivos que a curadoria tinha aceitado (2026-08-31).** A lista
+  `accepted_extra_findings` — curada à mão a partir das saídas dos agentes — sustentava um placar
+  de precisão 1.00. Uma segunda passada, item a item contra o código dos repos clonados, achou
+  dois blockers do pipeline que não se sustentavam: `WTRSurveyViewController.m` (o
+  `UIActivityTypeSaveToCameraRoll` está **dentro de `excludedActivityTypes`** — o app remove a
+  opção, não acessa fotos) e `example/ios/RNMapboxExample/Info.plist` (chave `NSLocation*`
+  marcada como fantasma sem conferir `example/src/examples/UserLocation/`, que usa
+  `followUserLocation`; descrições preenchidas). Mesma causa raiz nos dois: o agente casa o
+  símbolo e ignora o contexto sintático. Reclassificados como FP → precisão da solução **1.00 →
+  0.82**. A primeira curadoria tinha conferido três entradas da lista e parado antes de terminar.
+  Rastro: `CHANGELOG.md` → "Sobre a precisão 0.82" e "## Experimentos removidos", 4º item.
 
 ### 2.2 A máquina pegou erro do humano
 
@@ -354,7 +365,9 @@ campo do `test-repos.json`.
   permissão fantasma `NSLocation`. Um blocker legítimo sobre o `NSLocation` fazia o trap dar
   *miss* mecanicamente. Corrigido: para caso `nao-reportar` **por chave**, o scorer olha só a
   chave, não o arquivo. Rastro: comentário em `caseHit`, `scripts/fill-results.ts`, commit
-  `3def319`.
+  `3def319`. (Ressalva de 2026-08-31: com o agente de Permissões comprovadamente super-reportando
+  fantasma no #6 do maps, a passagem dele nessa armadilha pesa menos como prova de discriminação
+  — ver a ressalva em `evaluation/results.md`.)
 - **Basename solto escapando do check de FP.** Um blocker do baseline com `file` **alucinado**
   (ex.: "usa `UserDefaults` em `ios/NativeBridge.swift`" no auth0 — o auth0 não usa) escapava do
   cálculo de precisão só por mencionar "PrivacyInfo.xcprivacy" em prosa. Corrigido: match de
@@ -369,8 +382,12 @@ campo do `test-repos.json`.
   re-executar os agentes. Os dois são incompatíveis: os agentes rodaram *antes* do patch, então
   nenhum achado existente pode refletir a condição injetada → o caso seria `MISS/MISS` mecânico,
   medindo nada. O agente **devolveu a contradição em vez de produzir o número sem sentido**. A
-  decisão final foi ficar em 9 casos. Rastro: `CHANGELOG.md` → "## Experimentos removidos", 3º
-  item.
+  decisão foi ficar em 9 casos. Rastro: `CHANGELOG.md` → "## Experimentos removidos", 3º item.
+- **Sequência (2026-08-31):** tentou-se um 10º caso *real* promovendo um `accepted_extra_findings`
+  do Wootric. A conferência do código mostrou que o achado era **falso positivo** (símbolo dentro
+  de `excludedActivityTypes`); o 10º caso foi revertido e o FP — mais um segundo, no app de
+  exemplo do maps — saiu da lista de aceitos. Precisão da solução: 1.00 → 0.82. Rastro:
+  `CHANGELOG.md` → "## Experimentos removidos", 4º item, e "Sobre a precisão 0.82".
 
 ### 2.6 O checkpoint estrutural
 
