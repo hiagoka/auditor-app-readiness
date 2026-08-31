@@ -6,6 +6,10 @@
 
 ## In English (summary)
 
+*Optional. The full README continues in Portuguese below; the hackathon brief is in PT-BR and so
+is the tool's target user. This section is a convenience summary for non-Portuguese readers — it
+carries no information the Portuguese text doesn't.*
+
 **What it is.** A command-line tool that audits a React Native / iOS project **before** App Store
 submission, using specialized AI agents to catch the most common rejection reasons — **privacy
 and permissions**. Output: a prioritized report (`resultado.json` + a Lighthouse-style
@@ -54,11 +58,13 @@ with the measured evidence and a "removed experiments" section. `REPRODUCAO.md` 
 guide. `TRAJETORIAS.md` — deliverable 4, one end-to-end agent trajectory plus a human-checkpoints
 section (corrections went both ways). `evaluation/results.md` — the scorer's per-case output.
 
-**On language.** The git history and commit messages are in English; the code identifiers are
-English. The prose documents and the tool's own findings ("Permissão NSLocation… com descrição
-vazia") are in Portuguese — the declared user is a Brazilian solo dev, and the agent prompts (so
-the findings) are Portuguese. A tool that speaks its target user's language is a product choice,
-stated here on purpose.
+**On language.** The hackathon brief is in PT-BR. The prose documents and the tool's own findings
+("Permissão NSLocation… com descrição vazia") are in Portuguese too — the declared user is a
+Brazilian solo dev, and the agent prompts (so the findings) are Portuguese. The git history and
+commit messages are in English, as are the code identifiers. The "In English (summary)" section
+at the top is an optional convenience for non-Portuguese readers, not a sign the brief was in
+English. A tool that speaks its target user's language is a product choice, stated here on
+purpose.
 
 ---
 
